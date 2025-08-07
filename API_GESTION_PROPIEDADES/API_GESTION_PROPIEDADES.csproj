@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>2b42fd2e-b2a9-4701-8cb5-1f63a8f882ed</UserSecretsId>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.1" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\APLICACION_GESTION_PROPIEDADES\APLICACION_GESTION_PROPIEDADES.csproj" />
+    <ProjectReference Include="..\DOMINIO_GESTION_PROPIEDADES\DOMINIO_GESTION_PROPIEDADES.csproj" />
+    <ProjectReference Include="..\INFRAESTRUCTURA_GESTION_PROPIEDADES\INFRAESTRUCTURA_GESTION_PROPIEDADES.csproj" />
+  </ItemGroup>
+
+</Project>

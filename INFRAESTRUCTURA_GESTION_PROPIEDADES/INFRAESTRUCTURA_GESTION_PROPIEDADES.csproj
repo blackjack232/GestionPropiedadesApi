@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuracion\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.8" />
+    <PackageReference Include="MongoDB.Driver" Version="3.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\APLICACION_GESTION_PROPIEDADES\APLICACION_GESTION_PROPIEDADES.csproj" />
+    <ProjectReference Include="..\DOMINIO_GESTION_PROPIEDADES\DOMINIO_GESTION_PROPIEDADES.csproj" />
+  </ItemGroup>
+
+</Project>
