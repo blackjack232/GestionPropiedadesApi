@@ -97,6 +97,56 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				throw;
 			}
 		}
+		/// <summary>
+		/// Actualiza una propiedad existente en la base de datos por su ID.
+		/// </summary>
+		/// <param name="id">ID de la propiedad a actualizar.</param>
+		/// <param name="property">Entidad Property con los nuevos datos.</param>
+		/// <returns>
+		/// True si la propiedad fue actualizada correctamente.<br/>
+		/// False si no se encontró o no se modificó.<br/>
+		/// Lanza una excepción si ocurre un error durante la operación.
+		/// </returns>
+
+		public async Task<bool> Actualizar(string id, Property propiedad)
+		{
+			try
+			{
+				var filter = Builders<Property>.Filter.Eq(p => p.IdProperty, id);
+				var result = await _collection.ReplaceOneAsync(filter, propiedad);
+				return result.ModifiedCount > 0;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorActualizarPropiedad, id);
+				throw;
+			}
+		}
+		/// <summary>
+		/// Elimina una propiedad de la base de datos por su ID.
+		/// </summary>
+		/// <param name="id">ID de la propiedad a eliminar.</param>
+		/// <returns>
+		/// True si la propiedad fue eliminada exitosamente.<br/>
+		/// False si no se encontró.<br/>
+		/// Lanza una excepción si ocurre un error durante la operación.
+		/// </returns>
+
+		public async Task<bool> Eliminar(string id)
+		{
+			try
+			{
+				var filter = Builders<Property>.Filter.Eq(p => p.IdProperty, id);
+				var result = await _collection.DeleteOneAsync(filter);
+				return result.DeletedCount > 0;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorEliminarPropiedad, id);
+				throw;
+			}
+		}
+
 
 	}
 

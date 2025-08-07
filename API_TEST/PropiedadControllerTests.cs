@@ -1,5 +1,7 @@
 using API_GESTION_PROPIEDADES.Controllers.Propiedad;
 using APLICACION_GESTION_PROPIEDADES.Dto;
+using APLICACION_GESTION_PROPIEDADES.Dto.Request.APLICACION_GESTION_PROPIEDADES.Dto.Request;
+using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -9,13 +11,13 @@ namespace API_TEST
 	public class PropiedadControllerTests
 	{
 		private Mock<IPropiedadAplicacion> _mockServicio;
-		private PropiedadController _controller;
+		private PropertyController _controller;
 
 		[SetUp]
 		public void Setup()
 		{
 			_mockServicio = new Mock<IPropiedadAplicacion>();
-			_controller = new PropiedadController(_mockServicio.Object);
+			_controller = new PropertyController(_mockServicio.Object);
 		}
 
 		[Test]
@@ -78,7 +80,7 @@ namespace API_TEST
 		[Test]
 		public async Task Crear_RetornaOk_SiCreacionExitosa()
 		{
-			var dto = new PropertyDto { IdOwner = "123", Name = "Casa A", Address = "Calle 123", Price = 1000000 };
+			var dto = new PropertyRequest { IdOwner = "123", Name = "Casa A", Address = "Calle 123", Price = 1000000 };
 			var response = ApiResponse<string>.Ok(null, "Creada");
 
 			_mockServicio.Setup(x => x.Crear(dto)).ReturnsAsync(response);
@@ -91,7 +93,7 @@ namespace API_TEST
 		[Test]
 		public async Task Crear_RetornaBadRequest_SiFalla()
 		{
-			var dto = new PropertyDto { IdOwner = "123", Name = "Casa A", Address = "Calle 123", Price = 1000000 };
+			var dto = new PropertyRequest { IdOwner = "123", Name = "Casa A", Address = "Calle 123", Price = 1000000 };
 			var response = ApiResponse<string>.Fail("Error");
 
 			_mockServicio.Setup(x => x.Crear(dto)).ReturnsAsync(response);

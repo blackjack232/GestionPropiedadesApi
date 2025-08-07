@@ -1,4 +1,4 @@
-﻿namespace APLICACION_GESTION_PROPIEDADES.Dto
+﻿namespace APLICACION_GESTION_PROPIEDADES.Dto.Response
 {
 	public class ApiResponse<T>
 	{

@@ -42,6 +42,73 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				throw;
 			}
 		}
-	}
+		/// <summary>
+		/// Crea una nueva imagen de propiedad.
+		/// </summary>
+		public async Task Crear(PropertyImage propertyImage)
+		{
+			try
+			{
+				await _collection.InsertOneAsync(propertyImage);
+				_logger.LogInformation(Constantes.ImagenCreada, propertyImage);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorCrearImagen);
+				throw;
+			}
+		}
 
+		/// <summary>
+		/// Elimina (lógicamente) una imagen por su ID.
+		/// </summary>
+		public async Task<bool> Eliminar(string id)
+		{
+			try
+			{
+				var filtro = Builders<PropertyImage>.Filter.Eq(p => p.IdPropertyImage, id);
+				var actualizacion = Builders<PropertyImage>.Update.Set(p => p.Enabled, false);
+
+				var resultado = await _collection.UpdateOneAsync(filtro, actualizacion);
+
+				if (resultado.ModifiedCount == 0)
+				{
+					_logger.LogWarning(Constantes.ImagenNoEncontradaEliminar, id);
+					return false;
+				}
+
+				_logger.LogInformation(Constantes.ImagenEliminada, id);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorEliminarImagen);
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// Obtiene todas las imágenes activas de una propiedad por su ID.
+		/// </summary>
+		public async Task<IEnumerable<PropertyImage>> ObtenerPorIdPropiedad(string idProperty)
+		{
+			try
+			{
+				var filtro = Builders<PropertyImage>.Filter.And(
+					Builders<PropertyImage>.Filter.Eq(p => p.IdProperty, idProperty),
+					Builders<PropertyImage>.Filter.Eq(p => p.Enabled, true)
+				);
+
+				var imagenes = await _collection.Find(filtro).ToListAsync();
+
+				_logger.LogInformation(Constantes.ImagenesObtenidasCorrectamente, idProperty);
+				return imagenes;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorObtenerImagenes);
+				throw;
+			}
+		}
+	}
 }

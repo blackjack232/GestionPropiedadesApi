@@ -1,10 +1,9 @@
 using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
-using APLICACION_GESTION_PROPIEDADES.Dto;
+using APLICACION_GESTION_PROPIEDADES.Dto.Request.APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
 using APLICACION_GESTION_PROPIEDADES.Servicios;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
-using INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -129,7 +128,7 @@ namespace APLICACION_TEST
 		[Test]
 		public async Task Crear_DeberiaCrearSiIdOwnerExiste()
 		{
-			var dto = new PropertyDto
+			var dto = new PropertyRequest
 			{
 				IdOwner = "abc",
 				Name = "Casa",
@@ -150,7 +149,7 @@ namespace APLICACION_TEST
 		[Test]
 		public async Task Crear_DeberiaRetornarFailSiIdOwnerNoExiste()
 		{
-			var dto = new PropertyDto { IdOwner = "xyz" };
+			var dto = new PropertyRequest { IdOwner = "xyz" };
 			_mockOwnerRepo.Setup(r => r.ExisteOwner("xyz")).ReturnsAsync(false);
 
 			var resultado = await _servicio.Crear(dto);
@@ -162,7 +161,7 @@ namespace APLICACION_TEST
 		[Test]
 		public async Task Crear_CuandoFallaDebeRetornarFail()
 		{
-			var dto = new PropertyDto { IdOwner = "abc" };
+			var dto = new PropertyRequest { IdOwner = "abc" };
 
 			_mockOwnerRepo.Setup(r => r.ExisteOwner("abc")).ReturnsAsync(true);
 			_mockPropiedadRepo.Setup(r => r.Crear(It.IsAny<Property>())).ThrowsAsync(new Exception("Falla"));

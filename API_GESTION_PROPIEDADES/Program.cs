@@ -35,6 +35,7 @@ builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddScoped<IPropiedadRespositorio, PropiedadRepositorio>();
 builder.Services.AddScoped<IOwnerRepositorio, OwnerRepositorio>();
 builder.Services.AddScoped<IPropertyImageRepositorio, PropertyImageRepositorio>();
+builder.Services.AddScoped<IPropertyTraceRepositorio, PropertyTraceRepositorio>();
 
 builder?.Services.AddApplication();
 var app = builder.Build();

@@ -1,6 +1,8 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
 using APLICACION_GESTION_PROPIEDADES.Dto;
+using APLICACION_GESTION_PROPIEDADES.Dto.Request.APLICACION_GESTION_PROPIEDADES.Dto.Request;
+using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
@@ -54,6 +56,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 
 					resultados.Add(new PropertyDto
 					{
+						IdProperty = prop.IdProperty,
 						IdOwner = prop.IdOwner,
 						Name = prop.Name,
 						Address = prop.Address,
@@ -120,7 +123,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		/// 400 si el IdOwner no existe,
 		/// o 500 si ocurre un error inesperado.
 		/// </returns>
-		public async Task<ApiResponse<string>> Crear(PropertyDto dto)
+		public async Task<ApiResponse<string>> Crear(PropertyRequest dto)
 		{
 			try
 			{
@@ -154,6 +157,68 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 				return ApiResponse<string>.Fail(Constantes.ErrorCrearPropiedadMensaje);
 			}
 		}
+		/// <summary>
+		/// Actualiza los datos de una propiedad existente por su ID.
+		/// </summary>
+		/// <param name="id">ID de la propiedad a actualizar.</param>
+		/// <param name="dto">DTO con los nuevos datos de la propiedad.</param>
+		/// <returns>
+		/// ApiResponse con mensaje de éxito si la propiedad fue actualizada.<br/>
+		/// Retorna un error si la propiedad no existe o si ocurre una excepción durante la operación.
+		/// </returns>
+
+		public async Task<ApiResponse<string>> Actualizar(string id, PropertyRequest dto)
+		{
+			try
+			{
+				var existe = await _propiedadRepositorio.ObtenerPorId(id);
+				if (existe == null)
+					return ApiResponse<string>.Fail(Constantes.PropiedadNoExisteMensaje);
+
+				var propiedad = new Property
+				{
+					IdProperty = id,
+					IdOwner = dto.IdOwner,
+					Name = dto.Name,
+					Address = dto.Address,
+					Price = dto.Price,
+					CodeInternal = dto.CodeInternal,
+					Year = dto.Year
+				};
+
+				var actualizado = await _propiedadRepositorio.Actualizar(id, propiedad);
+
+				if (!actualizado)
+					return ApiResponse<string>.Fail(Constantes.ErrorActualizarPropiedadMensaje);
+
+				_logger.LogInformation(Constantes.PropiedadActualizada, id);
+				return ApiResponse<string>.Ok(null, Constantes.PropiedadActualizadaMensaje);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorActualizarPropiedad, id);
+				return ApiResponse<string>.Fail(Constantes.ErrorActualizarPropiedadMensaje);
+			}
+		}
+
+		public async Task<ApiResponse<string>> Eliminar(string id)
+		{
+			try
+			{
+				var eliminado = await _propiedadRepositorio.Eliminar(id);
+				if (!eliminado)
+					return ApiResponse<string>.Fail(Constantes.PropiedadNoExisteMensaje);
+
+				_logger.LogInformation(Constantes.PropiedadEliminada, id);
+				return ApiResponse<string>.Ok(null, Constantes.PropiedadEliminadaMensaje);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorEliminarPropiedad, id);
+				return ApiResponse<string>.Fail(Constantes.ErrorEliminarPropiedadMensaje);
+			}
+		}
+
 	}
 
 }
