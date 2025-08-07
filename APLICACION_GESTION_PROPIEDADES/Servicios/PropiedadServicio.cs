@@ -1,9 +1,10 @@
-﻿using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
+﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
+using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
 using APLICACION_GESTION_PROPIEDADES.Dto;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
-using System;
+using Microsoft.Extensions.Logging;
 
 namespace APLICACION_GESTION_PROPIEDADES.Servicios
 {
@@ -13,15 +14,16 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		private readonly IPropiedadRespositorio _propiedadRepositorio;
 		private readonly IOwnerRepositorio _ownerRepositorio;
 		private readonly IPropertyImageRepositorio _imageRepositorio;
+		private readonly ILogger<PropiedadServicio> _logger;
 
-		public PropiedadServicio(IPropiedadRespositorio propiedadRepositorio, IOwnerRepositorio ownerRepositorio, IPropertyImageRepositorio imageRepositorio)
+		public PropiedadServicio(IPropiedadRespositorio propiedadRepositorio, IOwnerRepositorio ownerRepositorio, IPropertyImageRepositorio imageRepositorio, ILogger<PropiedadServicio> logger)
 		{
 			_propiedadRepositorio = propiedadRepositorio;
 			_ownerRepositorio = ownerRepositorio;
 			_imageRepositorio = imageRepositorio;
+			_logger = logger;
 		}
 
-	
 
 		/// <summary>
 		/// Obtiene una lista de propiedades filtradas por nombre, dirección o rango de precios,
@@ -31,30 +33,44 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		/// <param name="address">Dirección parcial o completa de la propiedad (opcional).</param>
 		/// <param name="minPrice">Precio mínimo de la propiedad (opcional).</param>
 		/// <param name="maxPrice">Precio máximo de la propiedad (opcional).</param>
-		/// <returns>Lista de propiedades con sus respectivas imágenes dentro de un ApiResponse.</returns>
+		/// <returns>
+		/// ApiResponse con código 200 y lista de propiedades si tiene éxito.
+		/// Código 500 si ocurre un error interno.
+		/// </returns>
 		public async Task<ApiResponse<IEnumerable<PropertyDto>>> ObtenerPropiedad(string? name, string? address, decimal? minPrice, decimal? maxPrice)
 		{
-			var properties = await _propiedadRepositorio.ObtenerPropiedad(name, address, minPrice, maxPrice);
-
-			var resultados = new List<PropertyDto>();
-
-			foreach (var prop in properties)
+			try
 			{
-				var imagenes = await _imageRepositorio.ObtenerImagenesPorPropiedad(prop.IdProperty);
+				_logger.LogInformation(Constantes.ConsultarPropiedades, name, address, minPrice, maxPrice);
 
-				resultados.Add(new PropertyDto
+
+				var properties = await _propiedadRepositorio.ObtenerPropiedad(name, address, minPrice, maxPrice);
+
+				var resultados = new List<PropertyDto>();
+
+				foreach (var prop in properties)
 				{
-					IdOwner = prop.IdOwner,
-					Name = prop.Name,
-					Address = prop.Address,
-					Price = prop.Price,
-					ImageUrls = imagenes.Select(i => i.File).ToList()
-				});
+					var imagenes = await _imageRepositorio.ObtenerImagenesPorPropiedad(prop.IdProperty);
+
+					resultados.Add(new PropertyDto
+					{
+						IdOwner = prop.IdOwner,
+						Name = prop.Name,
+						Address = prop.Address,
+						Price = prop.Price,
+						ImageUrls = imagenes.Select(i => i.File).ToList()
+					});
+				}
+
+				_logger.LogInformation(Constantes.PropiedadesObtenidas, resultados.Count);
+				return ApiResponse<IEnumerable<PropertyDto>>.Ok(resultados, Constantes.PropiedadesObtenidasExito);
 			}
-
-			return ApiResponse<IEnumerable<PropertyDto>>.Ok(resultados, "Propiedades obtenidas correctamente");
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorObtenerPropiedades, name, address, minPrice, maxPrice);
+				return ApiResponse<IEnumerable<PropertyDto>>.Fail(Constantes.ErrorObtenerPropiedadesMensaje);
+			}
 		}
-
 
 		/// <summary>
 		/// Obtiene los detalles de una propiedad por su ID, incluyendo sus imágenes asociadas.
@@ -63,49 +79,81 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		/// <returns>Objeto PropertyDto con información detallada y sus imágenes, dentro de un ApiResponse.</returns>
 		public async Task<ApiResponse<PropertyDto?>> ObtenerPorId(string id)
 		{
-			var property = await _propiedadRepositorio.ObtenerPorId(id);
-
-			if (property == null)
-				return ApiResponse<PropertyDto?>.Fail("La propiedad no existe.");
-
-			var imagenes = await _imageRepositorio.ObtenerImagenesPorPropiedad(property.IdProperty);
-
-			var dto = new PropertyDto
+			try
 			{
-				IdOwner = property.IdOwner,
-				Name = property.Name,
-				Address = property.Address,
-				Price = property.Price,
-				ImageUrls = imagenes.Select(i => i.File).ToList()
-			};
+				_logger.LogInformation(Constantes.ConsultarPropiedadPorId, id);
 
-			return ApiResponse<PropertyDto?>.Ok(dto, "Propiedad obtenida correctamente");
+				var property = await _propiedadRepositorio.ObtenerPorId(id);
+
+				if (property == null)
+				{
+					_logger.LogWarning(Constantes.PropiedadNoEncontrada, id);
+					return ApiResponse<PropertyDto?>.Fail(Constantes.PropiedadNoExisteMensaje);
+				}
+
+				var imagenes = await _imageRepositorio.ObtenerImagenesPorPropiedad(property.IdProperty);
+
+				var dto = new PropertyDto
+				{
+					IdOwner = property.IdOwner,
+					Name = property.Name,
+					Address = property.Address,
+					Price = property.Price,
+					ImageUrls = imagenes.Select(i => i.File).ToList()
+				};
+
+				return ApiResponse<PropertyDto?>.Ok(dto, Constantes.PropiedadObtenidaMensaje);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorObtenerPropiedadPorId, id);
+				return ApiResponse<PropertyDto?>.Fail(Constantes.ErrorConsultarPropiedadMensaje);
+			}
 		}
 
-
+		/// <summary>
+		/// Crea una nueva propiedad si el IdOwner proporcionado existe.
+		/// </summary>
+		/// <param name="dto">DTO con los datos de la propiedad.</param>
+		/// <returns>
+		/// ApiResponse con código 200 si fue creada correctamente,
+		/// 400 si el IdOwner no existe,
+		/// o 500 si ocurre un error inesperado.
+		/// </returns>
 		public async Task<ApiResponse<string>> Crear(PropertyDto dto)
 		{
-			if (!await _ownerRepositorio.ExisteOwner(dto.IdOwner))
+			try
 			{
-				return ApiResponse<string>.Fail($"No se puede crear la propiedad. El IdOwner '{dto.IdOwner}' no existe.");
+				_logger.LogInformation(Constantes.IntentandoCrearPropiedad, dto.IdOwner);
+
+				if (!await _ownerRepositorio.ExisteOwner(dto.IdOwner))
+				{
+					_logger.LogWarning(Constantes.IdOwnerNoExiste, dto.IdOwner);
+					return ApiResponse<string>.Fail(string.Format(Constantes.IdOwnerNoExisteMensaje, dto.IdOwner));
+				}
+
+				var property = new Property
+				{
+					IdOwner = dto.IdOwner,
+					Name = dto.Name,
+					Address = dto.Address,
+					Price = dto.Price,
+					CodeInternal = dto.CodeInternal,
+					Year = dto.Year
+				};
+
+				await _propiedadRepositorio.Crear(property);
+				_logger.LogInformation(Constantes.PropiedadCreada, dto.IdOwner);
+
+
+				return ApiResponse<string>.Ok(null, Constantes.PropiedadCreadaMensaje);
 			}
-
-			var property = new Property
+			catch (Exception ex)
 			{
-				IdOwner = dto.IdOwner,
-				Name = dto.Name,
-				Address = dto.Address,
-				Price = dto.Price,
-				CodeInternal = dto.CodeInternal,
-				Year = dto.Year
-			};
-
-			await _propiedadRepositorio.Crear(property);
-			return ApiResponse<string>.Ok(null, "Propiedad creada exitosamente");
+				_logger.LogError(ex, Constantes.ErrorCrearPropiedad, dto.IdOwner);
+				return ApiResponse<string>.Fail(Constantes.ErrorCrearPropiedadMensaje);
+			}
 		}
-
-
-	
 	}
 
 }

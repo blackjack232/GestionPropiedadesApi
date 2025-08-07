@@ -18,7 +18,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto
 		public IMongoCollection<Property> Properties =>
 			_database.GetCollection<Property>("Property");
 		public IMongoCollection<PropertyImage> PropertyImages =>
-	       _database.GetCollection<PropertyImage>("PropertyImage");
+		   _database.GetCollection<PropertyImage>("PropertyImage");
 
 		public IMongoCollection<PropertyTrace> PropertyTraces =>
 			_database.GetCollection<PropertyTrace>("PropertyTrace");

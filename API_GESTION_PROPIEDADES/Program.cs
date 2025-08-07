@@ -4,9 +4,18 @@ using APLICACION_GESTION_PROPIEDADES.Dto;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
 using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
 using INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio;
-using System.Buffers;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+// CONFIGURAR SERILOG
+Log.Logger = new LoggerConfiguration()
+	.ReadFrom.Configuration(builder.Configuration)
+	.Enrich.FromLogContext()
+	.WriteTo.Console()
+	.WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+	.CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
@@ -14,6 +23,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.Configure<MongoDbSettings>(
 	builder.Configuration.GetSection("MongoDbSettings"));
 
@@ -29,6 +39,8 @@ builder.Services.AddScoped<IPropertyImageRepositorio, PropertyImageRepositorio>(
 builder?.Services.AddApplication();
 var app = builder.Build();
 
+app.UseSerilogRequestLogging();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -42,4 +54,17 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+
+try
+{
+	Log.Information("Iniciando aplicación...");
+	app.Run();
+}
+catch (Exception ex)
+{
+	Log.Fatal(ex, "La aplicación falló al iniciar");
+}
+finally
+{
+	Log.CloseAndFlush();
+}

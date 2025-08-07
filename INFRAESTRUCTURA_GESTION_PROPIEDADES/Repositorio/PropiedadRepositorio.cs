@@ -1,6 +1,8 @@
-﻿using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
+﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
+using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
 using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -9,40 +11,91 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 	public class PropiedadRepositorio : IPropiedadRespositorio
 	{
 		private readonly IMongoCollection<Property> _collection;
+		private readonly ILogger<PropiedadRepositorio> _logger;
 
-		public PropiedadRepositorio(MongoDbContext context)
+		public PropiedadRepositorio(MongoDbContext context, ILogger<PropiedadRepositorio> logger)
 		{
 			_collection = context.Properties;
+			_logger = logger;
 		}
 
+		/// <summary>
+		/// Obtiene una lista de propiedades que cumplan con los filtros proporcionados.
+		/// </summary>
 		public async Task<IEnumerable<Property>> ObtenerPropiedad(string? name, string? address, decimal? minPrice, decimal? maxPrice)
 		{
-			var filter = Builders<Property>.Filter.Empty;
+			try
+			{
+				var filter = Builders<Property>.Filter.Empty;
 
-			if (!string.IsNullOrEmpty(name))
-				filter &= Builders<Property>.Filter.Regex("Name", new BsonRegularExpression(name, "i"));
+				if (!string.IsNullOrEmpty(name))
+					filter &= Builders<Property>.Filter.Regex("Name", new BsonRegularExpression(name, "i"));
 
-			if (!string.IsNullOrEmpty(address))
-				filter &= Builders<Property>.Filter.Regex("Address", new BsonRegularExpression(address, "i"));
+				if (!string.IsNullOrEmpty(address))
+					filter &= Builders<Property>.Filter.Regex("Address", new BsonRegularExpression(address, "i"));
 
-			if (minPrice.HasValue)
-				filter &= Builders<Property>.Filter.Gte("Price", minPrice.Value);
+				if (minPrice.HasValue)
+					filter &= Builders<Property>.Filter.Gte("Price", minPrice.Value);
 
-			if (maxPrice.HasValue)
-				filter &= Builders<Property>.Filter.Lte("Price", maxPrice.Value);
+				if (maxPrice.HasValue)
+					filter &= Builders<Property>.Filter.Lte("Price", maxPrice.Value);
 
-			return await _collection.Find(filter).ToListAsync();
+				var result = await _collection.Find(filter).ToListAsync();
+				_logger.LogInformation(Constantes.FiltroPropiedades, result.Count);
+				return result;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorFiltroPropiedades);
+				throw;
+			}
 		}
 
+		/// <summary>
+		/// Obtiene una propiedad por su ID.
+		/// </summary>
 		public async Task<Property?> ObtenerPorId(string id)
 		{
-			var filter = Builders<Property>.Filter.Eq("_id", ObjectId.Parse(id));
-			return await _collection.Find(filter).FirstOrDefaultAsync();
+			try
+			{
+				if (!ObjectId.TryParse(id, out var objectId))
+				{
+					_logger.LogWarning(Constantes.PropiedadIdInvalido, id);
+					return null;
+				}
+
+				var filter = Builders<Property>.Filter.Eq("_id", objectId);
+				var propiedad = await _collection.Find(filter).FirstOrDefaultAsync();
+
+				if (propiedad == null)
+					_logger.LogWarning(Constantes.PropiedadNoEncontrada, id);
+				else
+					_logger.LogInformation(Constantes.PropiedadEncontrada, id);
+
+				return propiedad;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorObtenerPropiedad, id);
+				throw;
+			}
 		}
 
+		/// <summary>
+		/// Crea una nueva propiedad en la base de datos.
+		/// </summary>
 		public async Task Crear(Property property)
 		{
-			await _collection.InsertOneAsync(property);
+			try
+			{
+				await _collection.InsertOneAsync(property);
+				_logger.LogInformation(Constantes.PropiedadInsertada, property.IdOwner);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorInsertarPropiedad, property.IdOwner);
+				throw;
+			}
 		}
 
 	}

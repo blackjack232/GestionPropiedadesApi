@@ -1,6 +1,5 @@
 ﻿using DOMINIO_GESTION_PROPIEDADES.Entities;
 using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 

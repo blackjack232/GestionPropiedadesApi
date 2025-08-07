@@ -1,8 +1,6 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Dto;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion;
-using DOMINIO_GESTION_PROPIEDADES.Entities;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 
 namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 {
@@ -85,9 +83,6 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 
 			return Ok(response);
 		}
-
-
-
 
 	}
 }

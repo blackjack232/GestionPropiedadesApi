@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace APLICACION_GESTION_PROPIEDADES.Dto
+﻿namespace APLICACION_GESTION_PROPIEDADES.Dto
 {
 	public class ApiResponse<T>
 	{
