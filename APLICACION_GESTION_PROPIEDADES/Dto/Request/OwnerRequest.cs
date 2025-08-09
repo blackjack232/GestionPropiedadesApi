@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace APLICACION_GESTION_PROPIEDADES.Dto.Request
@@ -29,11 +30,10 @@ namespace APLICACION_GESTION_PROPIEDADES.Dto.Request
 		public DateTime Birthday { get; set; }
 
 		/// <summary>
-		/// URL o ruta de la foto del propietario.
+		/// Imagen del propietario (archivo).
 		/// </summary>
 		[Required(ErrorMessage = "La foto es obligatoria.")]
-		[MaxLength(300, ErrorMessage = "La foto no puede tener más de 300 caracteres.")]
-		public string Photo { get; set; }
+		public IFormFile Photo { get; set; }
 	}
 }
 

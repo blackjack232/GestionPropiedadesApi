@@ -1,4 +1,5 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Dto;
+using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Request.APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 
@@ -11,6 +12,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion
 		Task<ApiResponse<string>> Crear(PropertyRequest dto);
 		Task<ApiResponse<string>> Actualizar(string id, PropertyRequest dto);
 		Task<ApiResponse<string>> Eliminar(string id);
+		Task<ApiResponse<string>> RegistrarPropiedadCompleta(PropiedadCompletaRequest registroPropiedadCompletaRequest);
 
 	}
 }

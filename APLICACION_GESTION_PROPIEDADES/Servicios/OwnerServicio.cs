@@ -1,6 +1,7 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
+using APLICACION_GESTION_PROPIEDADES.Dto;
 using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
@@ -69,7 +70,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		/// <summary>
 		/// Crea un nuevo propietario.
 		/// </summary>
-		public async Task<ApiResponse<string>> Crear(OwnerRequest owner)
+		public async Task<ApiResponse<string>> Crear(OwnerDto owner)
 		{
 			try
 			{
@@ -86,7 +87,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		/// <summary>
 		/// Actualiza un propietario existente por ID.
 		/// </summary>
-		public async Task<ApiResponse<string>> Actualizar(string id, OwnerRequest ownerDto)
+		public async Task<ApiResponse<string>> Actualizar(string id, OwnerDto ownerDto)
 		{
 			try
 			{
@@ -124,6 +125,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 				return ApiResponse<string>.Fail(Constantes.ErrorEliminarPropietario);
 			}
 		}
+
 	}
 
 }

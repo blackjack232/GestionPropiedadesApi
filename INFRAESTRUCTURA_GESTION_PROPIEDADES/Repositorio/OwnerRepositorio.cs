@@ -1,5 +1,6 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
+using APLICACION_GESTION_PROPIEDADES.Dto;
 using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
 using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
@@ -98,7 +99,8 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 		/// Crea un nuevo propietario en la base de datos.
 		/// </summary>
 		/// <param name="owner">Datos del propietario en formato OwnerRequest.</param>
-		public async Task Crear(OwnerRequest owner)
+		/// <returns>Id del propietario creado.</returns>
+		public async Task<string> Crear(OwnerDto owner)
 		{
 			try
 			{
@@ -111,7 +113,11 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				};
 
 				await _collection.InsertOneAsync(entidad);
+
 				_logger.LogInformation(Constantes.OwnerCreado, entidad.Name);
+
+				// Retorna el Id generado por MongoDB
+				return entidad.Id.ToString();
 			}
 			catch (Exception ex)
 			{
@@ -120,13 +126,14 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			}
 		}
 
+
 		/// <summary>
 		/// Actualiza los datos de un propietario existente por su ID.
 		/// </summary>
 		/// <param name="id">ID del propietario a actualizar.</param>
-		/// <param name="owner">Objeto OwnerRequest con los nuevos datos.</param>
+		/// <param name="owner">Objeto Owner con los nuevos datos.</param>
 		/// <returns>True si se actualizó, false si no se encontró o no se modificó.</returns>
-		public async Task<bool> Actualizar(string id, OwnerRequest owner)
+		public async Task<bool> Actualizar(string id, OwnerDto owner)
 		{
 			try
 			{
@@ -190,6 +197,6 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			}
 		}
 
-
+	
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Common.perfiles;
+using APLICACION_GESTION_PROPIEDADES.Common.Transversales;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Servicios;
 using APLICACION_GESTION_PROPIEDADES.Servicios.APLICACION_GESTION_PROPIEDADES.Servicios;
@@ -28,6 +29,7 @@ namespace APLICACION_GESTION_PROPIEDADES
 			services.AddTransient<IOwnerAplicacion, OwnerServicio>();
 			services.AddTransient<IPropertyImageAplicacion, PropertyImageServicio>();
 			services.AddTransient<IPropertyTraceAplicacion, PropertyTraceServicio>();
+			services.AddScoped<ICloudinaryServicio, CloudinaryServicio>();
 
 			return services;
 		}

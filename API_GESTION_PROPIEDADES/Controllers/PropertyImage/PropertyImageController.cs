@@ -23,6 +23,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.PropertyImage
 		[HttpGet("{idProperty}")]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<PropertyImageDto>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ObtenerPorIdPropiedad(string idProperty)
 		{
 			var response = await _propertyImageAplicacion.ObtenerPorIdPropiedad(idProperty);
@@ -39,6 +40,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.PropertyImage
 		[HttpPost]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Crear([FromBody] PropertyImageRequest request)
 		{
 			if (!ModelState.IsValid)
@@ -70,6 +72,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.PropertyImage
 		[HttpDelete("{id}")]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Eliminar(string id)
 		{
 			var response = await _propertyImageAplicacion.Eliminar(id);

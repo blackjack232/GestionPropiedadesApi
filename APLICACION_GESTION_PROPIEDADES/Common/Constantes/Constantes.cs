@@ -132,7 +132,14 @@
 
 			public const string ImagenesObtenidasCorrectamente = "Imágenes obtenidas correctamente.";
 			public const string ErrorObtenerImagenes = "Error al obtener las imágenes.";
-		}
+		// PROPERY COMPLETA
+	
+		public const string ErrorSubirImagen = "No se pudo subir la imagen";
+		public const string MensajeRegistroExitoso = "Registro completo exitoso";
+		public const string MensajeErrorRegistro = "Error en el registro: ";
+		public const string ImagenPropietario = "imagenes-propietarios";
+		public const string ImagenesPropiedades = "imagenes-propiedades";
+	}
 
 	}
 

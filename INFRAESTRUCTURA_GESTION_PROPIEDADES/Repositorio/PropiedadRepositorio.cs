@@ -84,12 +84,16 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 		/// <summary>
 		/// Crea una nueva propiedad en la base de datos.
 		/// </summary>
-		public async Task Crear(Property property)
+		public async Task<string> Crear(Property property)
 		{
 			try
 			{
 				await _collection.InsertOneAsync(property);
+
 				_logger.LogInformation(Constantes.PropiedadInsertada, property.IdOwner);
+
+				// Retornar el Id generado como string
+				return property.IdProperty.ToString();
 			}
 			catch (Exception ex)
 			{
@@ -97,6 +101,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				throw;
 			}
 		}
+
 		/// <summary>
 		/// Actualiza una propiedad existente en la base de datos por su ID.
 		/// </summary>
@@ -147,7 +152,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			}
 		}
 
-
+	
 	}
 
 }

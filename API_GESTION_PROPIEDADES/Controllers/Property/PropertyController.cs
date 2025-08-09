@@ -1,5 +1,7 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
+using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Dto;
+using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Request.APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion;
@@ -12,6 +14,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 	public class PropertyController : ControllerBase
 	{
 		private readonly IPropiedadAplicacion _propiedadAplicacion;
+
 
 		public PropertyController(IPropiedadAplicacion propiedadAplicacion)
 		{
@@ -33,6 +36,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 		[HttpGet]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<PropertyDto>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ObtenerPropiedad([FromQuery] string? name, [FromQuery] string? address, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice)
 		{
 			var response = await _propiedadAplicacion.ObtenerPropiedad(name, address, minPrice, maxPrice);
@@ -56,6 +60,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 		[ProducesResponseType(typeof(ApiResponse<PropertyDto>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ObtenerPorId(string id)
 		{
 			var response = await _propiedadAplicacion.ObtenerPorId(id);
@@ -77,6 +82,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 		[HttpPost]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Crear([FromBody] PropertyRequest property)
 		{
 			if (!ModelState.IsValid)
@@ -108,6 +114,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Eliminar(string id)
 		{
 			var response = await _propiedadAplicacion.Eliminar(id);
@@ -137,6 +144,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Actualizar(string id, [FromBody] PropertyRequest property)
 		{
 			if (!ModelState.IsValid)
@@ -160,6 +168,40 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 			}
 
 			return Ok(response);
+		}
+
+		/// <summary>
+		/// Crea un registro completo incluyendo Owner, Property y PropertyImage. El proceso es transaccional.
+		/// </summary>
+		/// <param name="request">Datos completos para registrar propietario, propiedad e imagen.</param>
+		/// <returns>
+		/// Código 200 si se registra todo correctamente.<br/>
+		/// Código 400 si ocurre un error en cualquier paso del proceso.<br/>
+		/// Código 500 si ocurre una excepción inesperada.
+		/// </returns>
+		[HttpPost("registro-completo")]
+		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> RegistrarPropiedadCompleta([FromForm] PropiedadCompletaRequest request)
+		{
+			if (!ModelState.IsValid)
+			{
+				var errores = ModelState.Values
+					.SelectMany(v => v.Errors)
+					.Select(e => e.ErrorMessage)
+					.ToList();
+
+				return BadRequest(errores);
+			}
+			var response = await _propiedadAplicacion.RegistrarPropiedadCompleta(request);
+
+			if (!response.Success)
+				return BadRequest(response);
+
+			return Ok(response);
+
+
 		}
 
 	}

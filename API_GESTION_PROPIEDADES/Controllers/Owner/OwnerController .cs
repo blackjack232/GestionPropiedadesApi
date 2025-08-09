@@ -1,5 +1,6 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
+using APLICACION_GESTION_PROPIEDADES.Dto;
 using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Owner
 		[HttpGet]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<OwnerResponse>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ObtenerTodos()
 		{
 			var response = await _servicio.ObtenerTodos();
@@ -47,6 +49,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Owner
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(ApiResponse<OwnerResponse>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ObtenerPorId(string id)
 		{
 			var response = await _servicio.ObtenerPorId(id);
@@ -67,7 +70,8 @@ namespace API_GESTION_PROPIEDADES.Controllers.Owner
 		[HttpPost]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-		public async Task<IActionResult> Crear([FromBody] OwnerRequest owner)
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> Crear([FromBody] OwnerDto owner)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -100,7 +104,8 @@ namespace API_GESTION_PROPIEDADES.Controllers.Owner
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-		public async Task<IActionResult> Actualizar(string id, [FromBody] OwnerRequest ownerDto)
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+		public async Task<IActionResult> Actualizar(string id, [FromBody] OwnerDto ownerDto)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -135,6 +140,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Owner
 		[HttpDelete("{id}")]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Eliminar(string id)
 		{
 			var response = await _servicio.Eliminar(id);

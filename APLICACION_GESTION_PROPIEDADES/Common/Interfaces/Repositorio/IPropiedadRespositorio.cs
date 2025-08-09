@@ -8,7 +8,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio
 
 		Task<IEnumerable<Property>> ObtenerPropiedad(string? name, string? address, decimal? minPrice, decimal? maxPrice);
 		Task<Property?> ObtenerPorId(string id);
-		Task Crear(Property property);
+		Task<string> Crear(Property property);
 		Task<bool> Actualizar(string id, Property propiedad);
 		Task<bool> Eliminar(string id);
 

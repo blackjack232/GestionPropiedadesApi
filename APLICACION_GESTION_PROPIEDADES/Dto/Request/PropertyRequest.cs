@@ -9,8 +9,7 @@
 			/// <summary>
 			/// Identificador del propietario. Debe existir en el sistema.
 			/// </summary>
-			[Required(ErrorMessage = "El campo IdOwner es obligatorio.")]
-			public string IdOwner { get; set; } = null!;
+			public string? IdOwner { get; set; } = null!;
 
 			/// <summary>
 			/// Nombre de la propiedad.
