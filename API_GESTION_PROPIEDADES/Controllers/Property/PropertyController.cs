@@ -13,10 +13,10 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 	[ApiController]
 	public class PropertyController : ControllerBase
 	{
-		private readonly IPropiedadAplicacion _propiedadAplicacion;
+		private readonly IPropertyAplicacion _propiedadAplicacion;
 
 
-		public PropertyController(IPropiedadAplicacion propiedadAplicacion)
+		public PropertyController(IPropertyAplicacion propiedadAplicacion)
 		{
 			_propiedadAplicacion = propiedadAplicacion;
 		}
@@ -37,9 +37,17 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<PropertyDto>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-		public async Task<IActionResult> ObtenerPropiedad([FromQuery] string? name, [FromQuery] string? address, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice)
+		[HttpGet]
+		[ProducesResponseType(typeof(ApiResponse<PagedResponse<PropertyDto>>), StatusCodes.Status200OK)]
+		public async Task<IActionResult> ObtenerPropiedad([FromQuery] string? name,	[FromQuery] string? address,[FromQuery] decimal? minPrice,[FromQuery] decimal? maxPrice,[FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)   
 		{
-			var response = await _propiedadAplicacion.ObtenerPropiedad(name, address, minPrice, maxPrice);
+			var response = await _propiedadAplicacion.ObtenerPropiedad(
+				name,
+				address,
+				minPrice,
+				maxPrice,
+				pageNumber,                      
+				pageSize);
 
 			if (!response.Success)
 				return BadRequest(response);

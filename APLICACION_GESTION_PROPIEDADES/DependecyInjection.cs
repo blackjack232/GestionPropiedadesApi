@@ -25,7 +25,7 @@ namespace APLICACION_GESTION_PROPIEDADES
 			});
 
 			// Inyección de dependencias para la capa de aplicación
-			services.AddTransient<IPropiedadAplicacion, PropiedadServicio>();
+			services.AddTransient<IPropertyAplicacion, PropertyServicio>();
 			services.AddTransient<IOwnerAplicacion, OwnerServicio>();
 			services.AddTransient<IPropertyImageAplicacion, PropertyImageServicio>();
 			services.AddTransient<IPropertyTraceAplicacion, PropertyTraceServicio>();

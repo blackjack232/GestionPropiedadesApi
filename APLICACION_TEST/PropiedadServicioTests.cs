@@ -12,21 +12,21 @@ namespace APLICACION_TEST
 	[TestFixture]
 	public class PropiedadServicioTests
 	{
-		private Mock<IPropiedadRespositorio> _mockPropiedadRepo;
+		private Mock<IPropertyRespositorio> _mockPropiedadRepo;
 		private Mock<IOwnerRepositorio> _mockOwnerRepo;
 		private Mock<IPropertyImageRepositorio> _mockImageRepo;
-		private Mock<ILogger<PropiedadServicio>> _mockLogger;
-		private PropiedadServicio _servicio;
+		private Mock<ILogger<PropertyServicio>> _mockLogger;
+		private PropertyServicio _servicio;
 
 		[SetUp]
 		public void SetUp()
 		{
-			_mockPropiedadRepo = new Mock<IPropiedadRespositorio>();
+			_mockPropiedadRepo = new Mock<IPropertyRespositorio>();
 			_mockOwnerRepo = new Mock<IOwnerRepositorio>();
 			_mockImageRepo = new Mock<IPropertyImageRepositorio>();
-			_mockLogger = new Mock<ILogger<PropiedadServicio>>();
+			_mockLogger = new Mock<ILogger<PropertyServicio>>();
 
-			_servicio = new PropiedadServicio(
+			_servicio = new PropertyServicio(
 				_mockPropiedadRepo.Object,
 				_mockOwnerRepo.Object,
 				_mockImageRepo.Object,

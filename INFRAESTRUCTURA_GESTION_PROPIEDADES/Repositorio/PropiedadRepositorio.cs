@@ -8,7 +8,7 @@ using MongoDB.Driver;
 
 namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 {
-	public class PropiedadRepositorio : IPropiedadRespositorio
+	public class PropiedadRepositorio : IPropertyRespositorio
 	{
 		private readonly IMongoCollection<Property> _collection;
 		private readonly ILogger<PropiedadRepositorio> _logger;
@@ -50,7 +50,47 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				throw;
 			}
 		}
+		/// <summary>
+		/// Obtiene una lista paginada de propiedades que cumplan con los filtros proporcionados.
+		/// </summary>
+		/// <returns>Tupla con (propiedades, totalCount)</returns>
+		public async Task<(IEnumerable<Property> Properties, long TotalCount)> ObtenerPropiedadPaginada(string? name,string? address,decimal? minPrice,	decimal? maxPrice,int pageNumber,int pageSize)
+		{
+			try
+			{
+				var filter = Builders<Property>.Filter.Empty;
 
+				if (!string.IsNullOrEmpty(name))
+					filter &= Builders<Property>.Filter.Regex("Name", new BsonRegularExpression(name, "i"));
+
+				if (!string.IsNullOrEmpty(address))
+					filter &= Builders<Property>.Filter.Regex("Address", new BsonRegularExpression(address, "i"));
+
+				if (minPrice.HasValue)
+					filter &= Builders<Property>.Filter.Gte("Price", minPrice.Value);
+
+				if (maxPrice.HasValue)
+					filter &= Builders<Property>.Filter.Lte("Price", maxPrice.Value);
+
+				// Obtener conteo total (sin paginación)
+				var totalCount = await _collection.CountDocumentsAsync(filter);
+
+				// Obtener datos paginados
+				var properties = await _collection.Find(filter)
+					.Skip((pageNumber - 1) * pageSize)
+					.Limit(pageSize)
+					.ToListAsync();
+
+				_logger.LogInformation(Constantes.FiltroPropiedades, properties.Count);
+				return (properties, totalCount);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, Constantes.ErrorFiltroPropiedades);
+				throw;
+			}
+		}
+		
 		/// <summary>
 		/// Obtiene una propiedad por su ID.
 		/// </summary>

@@ -50,20 +50,28 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		/// <summary>
 		/// Obtiene un propietario por su ID.
 		/// </summary>
-		public async Task<ApiResponse<Owner?>> ObtenerPorId(string id)
+		public async Task<ApiResponse<OwnerResponse?>> ObtenerPorId(string id)
 		{
 			try
 			{
 				var owner = await _repo.ObtenerPorId(id);
+				var ownerResponse = new OwnerResponse
+				{
+					Id = owner.Id.ToString(),
+					Name = owner.Name,
+					Address = owner.Address,
+					Birthday = owner.Birthday,
+					Photo = owner.Photo
+				};
 				if (owner == null)
-					return ApiResponse<Owner?>.Fail(Constantes.PropietarioNoEncontrado);
+					return ApiResponse<OwnerResponse?>.Fail(Constantes.PropietarioNoEncontrado);
 
-				return ApiResponse<Owner?>.Ok(owner, Constantes.PropietarioObtenido);
+				return ApiResponse<OwnerResponse?>.Ok(ownerResponse, Constantes.PropietarioObtenido);
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, Constantes.ErrorObtenerPropietario);
-				return ApiResponse<Owner?>.Fail(Constantes.ErrorObtenerPropietario);
+				return ApiResponse<OwnerResponse?>.Fail(Constantes.ErrorObtenerPropietario);
 			}
 		}
 

@@ -10,13 +10,13 @@ namespace API_TEST
 {
 	public class PropiedadControllerTests
 	{
-		private Mock<IPropiedadAplicacion> _mockServicio;
+		private Mock<IPropertyAplicacion> _mockServicio;
 		private PropertyController _controller;
 
 		[SetUp]
 		public void Setup()
 		{
-			_mockServicio = new Mock<IPropiedadAplicacion>();
+			_mockServicio = new Mock<IPropertyAplicacion>();
 			_controller = new PropertyController(_mockServicio.Object);
 		}
 

@@ -19,11 +19,11 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 	public class PropertyImageServicio : IPropertyImageAplicacion
 	{
 		private readonly IPropertyImageRepositorio _imageRepositorio;
-		private readonly IPropiedadRespositorio _propiedadRepositorio;
+		private readonly IPropertyRespositorio _propiedadRepositorio;
 		private readonly ILogger<PropertyImageServicio> _logger;
 
 		public PropertyImageServicio(IPropertyImageRepositorio imageRepositorio,
-									 IPropiedadRespositorio propiedadRepositorio,
+									 IPropertyRespositorio propiedadRepositorio,
 									 ILogger<PropertyImageServicio> logger)
 		{
 			_imageRepositorio = imageRepositorio;

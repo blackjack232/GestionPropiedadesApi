@@ -15,16 +15,16 @@ using Microsoft.AspNetCore.Http;
 
 namespace APLICACION_GESTION_PROPIEDADES.Servicios
 {
-	public class PropiedadServicio : IPropiedadAplicacion
+	public class PropertyServicio : IPropertyAplicacion
 	{
 
-		private readonly IPropiedadRespositorio _propiedadRepositorio;
+		private readonly IPropertyRespositorio _propiedadRepositorio;
 		private readonly IOwnerRepositorio _ownerRepositorio;
 		private readonly IPropertyImageRepositorio _imageRepositorio;
 		private readonly ICloudinaryServicio _cloudinaryServicio;
-		private readonly ILogger<PropiedadServicio> _logger;
+		private readonly ILogger<PropertyServicio> _logger;
 
-		public PropiedadServicio(IPropiedadRespositorio propiedadRepositorio, IOwnerRepositorio ownerRepositorio, IPropertyImageRepositorio imageRepositorio, ILogger<PropiedadServicio> logger)
+		public PropertyServicio(IPropertyRespositorio propiedadRepositorio, IOwnerRepositorio ownerRepositorio, IPropertyImageRepositorio imageRepositorio, ILogger<PropertyServicio> logger)
 		{
 			_propiedadRepositorio = propiedadRepositorio;
 			_ownerRepositorio = ownerRepositorio;
@@ -34,53 +34,70 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 
 
 		/// <summary>
-		/// Obtiene una lista de propiedades filtradas por nombre, dirección o rango de precios,
+		/// Obtiene una lista paginada de propiedades filtradas por nombre, dirección o rango de precios,
 		/// incluyendo todas sus imágenes asociadas.
 		/// </summary>
 		/// <param name="name">Nombre parcial o completo de la propiedad (opcional).</param>
 		/// <param name="address">Dirección parcial o completa de la propiedad (opcional).</param>
 		/// <param name="minPrice">Precio mínimo de la propiedad (opcional).</param>
 		/// <param name="maxPrice">Precio máximo de la propiedad (opcional).</param>
+		/// <param name="pageNumber">Número de página (default: 1).</param>
+		/// <param name="pageSize">Tamaño de página (default: 10, max: 100).</param>
 		/// <returns>
-		/// ApiResponse con código 200 y lista de propiedades si tiene éxito.
+		/// ApiResponse con código 200 y lista paginada de propiedades si tiene éxito.
 		/// Código 500 si ocurre un error interno.
 		/// </returns>
-		public async Task<ApiResponse<IEnumerable<PropertyDto>>> ObtenerPropiedad(string? name, string? address, decimal? minPrice, decimal? maxPrice)
+		public async Task<ApiResponse<PagedResponse<PropertyDto>>> ObtenerPropiedad(string? name,string? address,decimal? minPrice,decimal? maxPrice,int pageNumber = 1,int pageSize = 10)
 		{
 			try
 			{
-				_logger.LogInformation(Constantes.ConsultarPropiedades, name, address, minPrice, maxPrice);
+				// Validar parámetros de paginación
+				pageSize = Math.Min(pageSize, 100); // Limitar máximo 100 registros por página
+				pageNumber = Math.Max(pageNumber, 1); // Asegurar que sea al menos 1
 
+				_logger.LogInformation(Constantes.ConsultarPropiedades, name, address, minPrice, maxPrice, pageNumber, pageSize);
 
-				var properties = await _propiedadRepositorio.ObtenerPropiedad(name, address, minPrice, maxPrice);
+				// Obtener propiedades paginadas
+				var (properties, totalCount) = await _propiedadRepositorio.ObtenerPropiedadPaginada(
+					name, address, minPrice, maxPrice, pageNumber, pageSize);
 
-				var resultados = new List<PropertyDto>();
+				// Optimización: Obtener todas las imágenes en una sola consulta
+				var propertyIds = properties.Select(p => p.IdProperty).ToList();
+				var allImages = await _imageRepositorio.ObtenerImagenesPorPropiedades(propertyIds);
+				var imagesDictionary = allImages.GroupBy(i => i.IdProperty)
+											  .ToDictionary(g => g.Key, g => g.Select(i => i.File).ToList());
 
-				foreach (var prop in properties)
+				var resultados = properties.Select(prop => new PropertyDto
 				{
-					var imagenes = await _imageRepositorio.ObtenerImagenesPorPropiedad(prop.IdProperty);
+					IdProperty = prop.IdProperty,
+					IdOwner = prop.IdOwner,
+					Name = prop.Name,
+					Address = prop.Address,
+					Price = prop.Price,
+					Year = prop.Year,
+					CodeInternal = prop.CodeInternal,
+					ImageUrls = imagesDictionary.TryGetValue(prop.IdProperty, out var urls) ? urls : new List<string>()
+				}).ToList();
 
-					resultados.Add(new PropertyDto
-					{
-						IdProperty = prop.IdProperty,
-						IdOwner = prop.IdOwner,
-						Name = prop.Name,
-						Address = prop.Address,
-						Price = prop.Price,
-						ImageUrls = imagenes.Select(i => i.File).ToList()
-					});
-				}
+				// Construir respuesta paginada
+				var pagedResponse = new PagedResponse<PropertyDto>
+				{
+					PageNumber = pageNumber,
+					PageSize = pageSize,
+					TotalRecords = totalCount,
+					TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+					Data = resultados
+				};
 
 				_logger.LogInformation(Constantes.PropiedadesObtenidas, resultados.Count);
-				return ApiResponse<IEnumerable<PropertyDto>>.Ok(resultados, Constantes.PropiedadesObtenidasExito);
+				return ApiResponse<PagedResponse<PropertyDto>>.Ok(pagedResponse, Constantes.PropiedadesObtenidasExito);
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, Constantes.ErrorObtenerPropiedades, name, address, minPrice, maxPrice);
-				return ApiResponse<IEnumerable<PropertyDto>>.Fail(Constantes.ErrorObtenerPropiedadesMensaje);
+				return ApiResponse<PagedResponse<PropertyDto>>.Fail(Constantes.ErrorObtenerPropiedadesMensaje);
 			}
 		}
-
 		/// <summary>
 		/// Obtiene los detalles de una propiedad por su ID, incluyendo sus imágenes asociadas.
 		/// </summary>

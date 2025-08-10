@@ -8,6 +8,7 @@
 		Task Crear(PropertyImage propertyImage);
 		Task<bool> Eliminar(string id);
 		Task<IEnumerable<PropertyImage>> ObtenerPorIdPropiedad(string idProperty);
+		Task<IEnumerable<PropertyImage>> ObtenerImagenesPorPropiedades(IEnumerable<string> propertyIds);
 	}
 
 }

@@ -17,11 +17,11 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		public class PropertyTraceServicio : IPropertyTraceAplicacion
 		{
 			private readonly IPropertyTraceRepositorio _traceRepositorio;
-			private readonly IPropiedadRespositorio _propiedadRepositorio;
+			private readonly IPropertyRespositorio _propiedadRepositorio;
 			private readonly ILogger<PropertyTraceServicio> _logger;
 
 			public PropertyTraceServicio(IPropertyTraceRepositorio traceRepositorio,
-										 IPropiedadRespositorio propiedadRepositorio,
+										 IPropertyRespositorio propiedadRepositorio,
 										 ILogger<PropertyTraceServicio> logger)
 			{
 				_traceRepositorio = traceRepositorio;

@@ -32,12 +32,23 @@ builder.Services.AddSingleton<MongoDbContext>();
 
 // Registra el repositorio y servicio
 
-builder.Services.AddScoped<IPropiedadRespositorio, PropiedadRepositorio>();
+builder.Services.AddScoped<IPropertyRespositorio, PropiedadRepositorio>();
 builder.Services.AddScoped<IOwnerRepositorio, OwnerRepositorio>();
 builder.Services.AddScoped<IPropertyImageRepositorio, PropertyImageRepositorio>();
 builder.Services.AddScoped<IPropertyTraceRepositorio, PropertyTraceRepositorio>();
 
 builder?.Services.AddApplication();
+
+builder?.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowLocalhost3000", policy =>
+	{
+		policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
+			  .AllowAnyHeader()
+			  .AllowAnyMethod()
+			  .AllowCredentials();
+	});
+});
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
@@ -50,6 +61,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowLocalhost3000");
 
 app.UseAuthorization();
 

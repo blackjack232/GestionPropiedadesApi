@@ -110,5 +110,17 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				throw;
 			}
 		}
+		/// <summary>
+		/// Obtiene todas las imágenes habilitadas para un conjunto de propiedades en una sola consulta
+		/// </summary>
+		public async Task<IEnumerable<PropertyImage>> ObtenerImagenesPorPropiedades(IEnumerable<string> propertyIds)
+		{
+			var filter = Builders<PropertyImage>.Filter.In("IdProperty", propertyIds) &
+						 Builders<PropertyImage>.Filter.Eq("Enabled", true);
+
+			return await _collection.Find(filter).ToListAsync();
+		}
+
+
 	}
 }
