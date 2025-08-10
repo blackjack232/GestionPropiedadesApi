@@ -1,4 +1,5 @@
-﻿using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
+﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
+using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Dto;
 using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Response;
@@ -11,32 +12,37 @@ namespace API_GESTION_PROPIEDADES.Controllers.PropertyImage
 	public class PropertyImageController : ControllerBase
 	{
 		private readonly IPropertyImageAplicacion _propertyImageAplicacion;
+		private readonly ILogger<PropertyImageController> _logger;
 
-		public PropertyImageController(IPropertyImageAplicacion propertyImageAplicacion)
+		public PropertyImageController(IPropertyImageAplicacion propertyImageAplicacion, ILogger<PropertyImageController> logger)
 		{
 			_propertyImageAplicacion = propertyImageAplicacion;
+			_logger = logger;
 		}
 
-		/// <summary>
-		/// Obtiene las imágenes de una propiedad por su Id.
-		/// </summary>
 		[HttpGet("{idProperty}")]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<PropertyImageDto>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ObtenerPorIdPropiedad(string idProperty)
 		{
-			var response = await _propertyImageAplicacion.ObtenerPorIdPropiedad(idProperty);
+			try
+			{
+				var response = await _propertyImageAplicacion.ObtenerPorIdPropiedad(idProperty);
 
-			if (!response.Success || response.Data == null)
-				return NotFound(response);
+				if (!response.Success || response.Data == null)
+					return NotFound(ApiResponse<object>.Fail(MessageResponse.ImagenNoExisteMensaje));
 
-			return Ok(response);
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, MessageResponse.LogErrorObtenerImagenPorPropiedad, idProperty);
+				var errorResponse = ApiResponse<object>.Fail(MessageResponse.ErrorInternoServidor);
+				return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+			}
 		}
 
-		/// <summary>
-		/// Crea una imagen para una propiedad existente.
-		/// </summary>
 		[HttpPost]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -50,37 +56,47 @@ namespace API_GESTION_PROPIEDADES.Controllers.PropertyImage
 					.Select(e => e.ErrorMessage)
 					.ToList();
 
-				return BadRequest(new ApiResponse<object>
-				{
-					Success = false,
-					Message = "Errores de validación",
-					Data = errores
-				});
+				return BadRequest(ApiResponse<List<string>>.Fail(string.Join("; ", errores)));
 			}
 
-			var response = await _propertyImageAplicacion.Crear(request);
+			try
+			{
+				var response = await _propertyImageAplicacion.Crear(request);
 
-			if (!response.Success)
-				return BadRequest(response);
+				if (!response.Success)
+					return BadRequest(response);
 
-			return Ok(response);
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, MessageResponse.LogErrorCrearImagenPropiedad);
+				var errorResponse = ApiResponse<object>.Fail(MessageResponse.ErrorInternoServidor);
+				return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+			}
 		}
 
-		/// <summary>
-		/// Elimina una imagen por su Id.
-		/// </summary>
 		[HttpDelete("{id}")]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Eliminar(string id)
 		{
-			var response = await _propertyImageAplicacion.Eliminar(id);
+			try
+			{
+				var response = await _propertyImageAplicacion.Eliminar(id);
 
-			if (!response.Success)
-				return BadRequest(response);
+				if (!response.Success)
+					return BadRequest(response);
 
-			return Ok(response);
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, MessageResponse.LogErrorEliminarImagenPropiedad, id);
+				var errorResponse = ApiResponse<object>.Fail(MessageResponse.ErrorInternoServidor);
+				return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+			}
 		}
 	}
 }

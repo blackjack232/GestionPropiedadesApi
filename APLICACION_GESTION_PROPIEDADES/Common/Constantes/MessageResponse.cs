@@ -1,7 +1,7 @@
 ﻿namespace APLICACION_GESTION_PROPIEDADES.Common.Constantes
 {
 
-	public static class Constantes
+	public static class MessageResponse
 	{
 
 		// ========== LOGS PARA CONSULTAS ==========
@@ -119,29 +119,77 @@
 		public const string ErrorObtenerTrazasLog = "Error al obtener trazas para la propiedad {IdProperty}";
 
 		//PROPERTY IMAGE
-	
-		
-			public const string ImagenCreada = "Imagen {0} creada correctamente.";
-			public const string ImagenCreadaCorrectamente = "Imagen registrada correctamente.";
-			public const string ErrorCrearImagen = "Error al registrar la imagen.";
 
-			public const string ImagenEliminada = "Imagen con ID {0} eliminada correctamente.";
-			public const string ImagenEliminadaCorrectamente = "Imagen eliminada correctamente.";
-			public const string ImagenNoEncontradaEliminar = "No se encontró la imagen a eliminar.";
-			public const string ErrorEliminarImagen = "Error al eliminar la imagen.";
 
-			public const string ImagenesObtenidasCorrectamente = "Imágenes obtenidas correctamente.";
-			public const string ErrorObtenerImagenes = "Error al obtener las imágenes.";
+		public const string ImagenCreada = "Imagen {0} creada correctamente.";
+		public const string ImagenCreadaCorrectamente = "Imagen registrada correctamente.";
+		public const string ErrorCrearImagen = "Error al registrar la imagen.";
+
+		public const string ImagenEliminada = "Imagen con ID {0} eliminada correctamente.";
+		public const string ImagenEliminadaCorrectamente = "Imagen eliminada correctamente.";
+		public const string ImagenNoEncontradaEliminar = "No se encontró la imagen a eliminar.";
+		public const string ErrorEliminarImagen = "Error al eliminar la imagen.";
+
+		public const string ImagenesObtenidasCorrectamente = "Imágenes obtenidas correctamente.";
+		public const string ErrorObtenerImagenes = "Error al obtener las imágenes.";
 		// PROPERY COMPLETA
-	
+
 		public const string ErrorSubirImagen = "No se pudo subir la imagen";
 		public const string MensajeRegistroExitoso = "Registro completo exitoso";
 		public const string MensajeErrorRegistro = "Error en el registro: ";
 		public const string ImagenPropietario = "imagenes-propietarios";
 		public const string ImagenesPropiedades = "imagenes-propiedades";
+		public const string ErrorInternoServidor = "Error interno del servidor.";
+
+		// Mensajes para respuestas al cliente
+
+		public const string ValidacionModeloInvalido = "Los datos enviados no son válidos.";
+		public const string CreacionExitosa = "Propiedad creada exitosamente.";
+		public const string ActualizacionExitosa = "Propiedad actualizada exitosamente.";
+		public const string EliminacionExitosa = "Propiedad eliminada exitosamente.";
+		public const string RegistroCompletoExitoso = "Registro completo realizado correctamente.";
+		public const string ErrorValidacionDatos = "Error en la validación de datos.";
+
+		// Textos para logs (mensajes internos)
+		public const string LogErrorObtenerPropiedad = "Error en ObtenerPropiedad";
+		public const string LogErrorObtenerPorId = "Error en ObtenerPorId con id: {Id}";
+		public const string LogErrorCrear = "Error en Crear propiedad";
+		public const string LogErrorEliminar = "Error en Eliminar propiedad con id: {Id}";
+		public const string LogErrorActualizar = "Error en Actualizar propiedad con id: {Id}";
+		public const string LogErrorRegistrarPropiedadCompleta = "Error en RegistrarPropiedadCompleta";
+
+		// Mensajes para respuestas
+
+		public const string PropietarioNoExisteMensaje = "El propietario no existe.";
+
+
+		// Mensajes para logs
+		public const string LogErrorObtenerTodosPropietarios = "Error en ObtenerTodos propietarios";
+		public const string LogErrorObtenerPropietarioPorId = "Error en ObtenerPorId propietario con id: {Id}";
+		public const string LogErrorCrearPropietario = "Error en Crear propietario";
+		public const string LogErrorActualizarPropietario = "Error en Actualizar propietario con id: {Id}";
+		public const string LogErrorEliminarPropietario = "Error en Eliminar propietario con id: {Id}";
+
+		// Mensajes para respuestas
+
+		public const string ImagenNoExisteMensaje = "La imagen no existe.";
+
+		// Mensajes para logs
+		public const string LogErrorObtenerImagenPorPropiedad = "Error en ObtenerPorIdPropiedad con idProperty: {0}";
+		public const string LogErrorCrearImagenPropiedad = "Error en Crear imagen de propiedad";
+		public const string LogErrorEliminarImagenPropiedad = "Error en Eliminar imagen de propiedad con id: {0}";
+
+
+		public const string TrazoNoExisteMensaje = "El trazo no existe.";
+
+		public const string LogErrorObtenerTrazoPorPropiedad = "Error en ObtenerPorIdPropiedad con idProperty: {0}";
+		public const string LogErrorCrearTrazoPropiedad = "Error en Crear trazo de propiedad";
+		public const string LogErrorEliminarTrazoPropiedad = "Error en Eliminar trazo de propiedad con id: {0}";
 	}
 
-	}
+}
+
+
 
 
 

@@ -2,9 +2,7 @@
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
 using APLICACION_GESTION_PROPIEDADES.Dto;
-using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Response;
-using DOMINIO_GESTION_PROPIEDADES.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace APLICACION_GESTION_PROPIEDADES.Servicios
@@ -37,12 +35,12 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					Photo = o.Photo
 				});
 
-				return ApiResponse<IEnumerable<OwnerResponse>>.Ok(response, Constantes.PropietariosObtenidos);
+				return ApiResponse<IEnumerable<OwnerResponse>>.Ok(response, MessageResponse.PropietariosObtenidos);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerPropietarios);
-				return ApiResponse<IEnumerable<OwnerResponse>>.Fail(Constantes.ErrorObtenerPropietarios);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerPropietarios);
+				return ApiResponse<IEnumerable<OwnerResponse>>.Fail(MessageResponse.ErrorObtenerPropietarios);
 			}
 		}
 
@@ -64,14 +62,14 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					Photo = owner.Photo
 				};
 				if (owner == null)
-					return ApiResponse<OwnerResponse?>.Fail(Constantes.PropietarioNoEncontrado);
+					return ApiResponse<OwnerResponse?>.Fail(MessageResponse.PropietarioNoEncontrado);
 
-				return ApiResponse<OwnerResponse?>.Ok(ownerResponse, Constantes.PropietarioObtenido);
+				return ApiResponse<OwnerResponse?>.Ok(ownerResponse, MessageResponse.PropietarioObtenido);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerPropietario);
-				return ApiResponse<OwnerResponse?>.Fail(Constantes.ErrorObtenerPropietario);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerPropietario);
+				return ApiResponse<OwnerResponse?>.Fail(MessageResponse.ErrorObtenerPropietario);
 			}
 		}
 
@@ -83,12 +81,12 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 			try
 			{
 				await _repo.Crear(owner);
-				return ApiResponse<string>.Ok(null, Constantes.PropietarioCreado);
+				return ApiResponse<string>.Ok(null, MessageResponse.PropietarioCreado);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorCrearPropietario);
-				return ApiResponse<string>.Fail(Constantes.ErrorCrearPropietario);
+				_logger.LogError(ex, MessageResponse.ErrorCrearPropietario);
+				return ApiResponse<string>.Fail(MessageResponse.ErrorCrearPropietario);
 			}
 		}
 
@@ -101,15 +99,15 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 			{
 				var existente = await _repo.ObtenerPorId(id);
 				if (existente == null)
-					return ApiResponse<string>.Fail(Constantes.PropietarioNoEncontrado);
+					return ApiResponse<string>.Fail(MessageResponse.PropietarioNoEncontrado);
 
 				await _repo.Actualizar(id, ownerDto);
-				return ApiResponse<string>.Ok(null, Constantes.PropietarioActualizado);
+				return ApiResponse<string>.Ok(null, MessageResponse.PropietarioActualizado);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorActualizarPropietario);
-				return ApiResponse<string>.Fail(Constantes.ErrorActualizarPropietario);
+				_logger.LogError(ex, MessageResponse.ErrorActualizarPropietario);
+				return ApiResponse<string>.Fail(MessageResponse.ErrorActualizarPropietario);
 			}
 		}
 
@@ -122,15 +120,15 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 			{
 				var existente = await _repo.ObtenerPorId(id);
 				if (existente == null)
-					return ApiResponse<string>.Fail(Constantes.PropietarioNoEncontrado);
+					return ApiResponse<string>.Fail(MessageResponse.PropietarioNoEncontrado);
 
 				await _repo.Eliminar(id);
-				return ApiResponse<string>.Ok(null, Constantes.PropietarioEliminado);
+				return ApiResponse<string>.Ok(null, MessageResponse.PropietarioEliminado);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorEliminarPropietario);
-				return ApiResponse<string>.Fail(Constantes.ErrorEliminarPropietario);
+				_logger.LogError(ex, MessageResponse.ErrorEliminarPropietario);
+				return ApiResponse<string>.Fail(MessageResponse.ErrorEliminarPropietario);
 			}
 		}
 

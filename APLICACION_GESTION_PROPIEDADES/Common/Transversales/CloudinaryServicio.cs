@@ -1,15 +1,8 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
-using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace APLICACION_GESTION_PROPIEDADES.Common.Transversales
 {
@@ -38,7 +31,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Common.Transversales
 			var uploadParams = new ImageUploadParams
 			{
 				File = new FileDescription(imagen.FileName, stream),
-				Folder = file 
+				Folder = file
 			};
 
 			var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -49,6 +42,6 @@ namespace APLICACION_GESTION_PROPIEDADES.Common.Transversales
 			return null;
 		}
 
-	
+
 	}
 }

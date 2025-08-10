@@ -1,5 +1,5 @@
-﻿using DOMINIO_GESTION_PROPIEDADES.Entities;
-using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
+﻿using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
+using DOMINIO_GESTION_PROPIEDADES.Entities;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
@@ -9,9 +9,9 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 	[Route("api/[controller]")]
 	public class TestMongoController : ControllerBase
 	{
-		private readonly MongoDbContext _context;
+		private readonly IMongoDbContext _context;
 
-		public TestMongoController(MongoDbContext context)
+		public TestMongoController(IMongoDbContext context)
 		{
 			_context = context;
 		}
@@ -29,6 +29,7 @@ namespace API_GESTION_PROPIEDADES.Controllers.Propiedad
 				return StatusCode(500, new { message = "Error al conectar con MongoDB", error = ex.Message });
 			}
 		}
+
 	}
 
 }

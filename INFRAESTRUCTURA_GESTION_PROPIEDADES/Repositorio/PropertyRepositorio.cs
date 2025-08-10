@@ -1,19 +1,19 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
+using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
-using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 {
-	public class PropiedadRepositorio : IPropertyRespositorio
+	public class PropertyRepositorio : IPropertyRespositorio
 	{
 		private readonly IMongoCollection<Property> _collection;
-		private readonly ILogger<PropiedadRepositorio> _logger;
+		private readonly ILogger<PropertyRepositorio> _logger;
 
-		public PropiedadRepositorio(MongoDbContext context, ILogger<PropiedadRepositorio> logger)
+		public PropertyRepositorio(IMongoDbContext context, ILogger<PropertyRepositorio> logger)
 		{
 			_collection = context.Properties;
 			_logger = logger;
@@ -41,12 +41,12 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 					filter &= Builders<Property>.Filter.Lte("Price", maxPrice.Value);
 
 				var result = await _collection.Find(filter).ToListAsync();
-				_logger.LogInformation(Constantes.FiltroPropiedades, result.Count);
+				_logger.LogInformation(MessageResponse.FiltroPropiedades, result.Count);
 				return result;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorFiltroPropiedades);
+				_logger.LogError(ex, MessageResponse.ErrorFiltroPropiedades);
 				throw;
 			}
 		}
@@ -54,7 +54,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 		/// Obtiene una lista paginada de propiedades que cumplan con los filtros proporcionados.
 		/// </summary>
 		/// <returns>Tupla con (propiedades, totalCount)</returns>
-		public async Task<(IEnumerable<Property> Properties, long TotalCount)> ObtenerPropiedadPaginada(string? name,string? address,decimal? minPrice,	decimal? maxPrice,int pageNumber,int pageSize)
+		public async Task<(IEnumerable<Property> Properties, long TotalCount)> ObtenerPropiedadPaginada(string? name, string? address, decimal? minPrice, decimal? maxPrice, int pageNumber, int pageSize)
 		{
 			try
 			{
@@ -81,16 +81,16 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 					.Limit(pageSize)
 					.ToListAsync();
 
-				_logger.LogInformation(Constantes.FiltroPropiedades, properties.Count);
+				_logger.LogInformation(MessageResponse.FiltroPropiedades, properties.Count);
 				return (properties, totalCount);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorFiltroPropiedades);
+				_logger.LogError(ex, MessageResponse.ErrorFiltroPropiedades);
 				throw;
 			}
 		}
-		
+
 		/// <summary>
 		/// Obtiene una propiedad por su ID.
 		/// </summary>
@@ -100,7 +100,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			{
 				if (!ObjectId.TryParse(id, out var objectId))
 				{
-					_logger.LogWarning(Constantes.PropiedadIdInvalido, id);
+					_logger.LogWarning(MessageResponse.PropiedadIdInvalido, id);
 					return null;
 				}
 
@@ -108,15 +108,15 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				var propiedad = await _collection.Find(filter).FirstOrDefaultAsync();
 
 				if (propiedad == null)
-					_logger.LogWarning(Constantes.PropiedadNoEncontrada, id);
+					_logger.LogWarning(MessageResponse.PropiedadNoEncontrada, id);
 				else
-					_logger.LogInformation(Constantes.PropiedadEncontrada, id);
+					_logger.LogInformation(MessageResponse.PropiedadEncontrada, id);
 
 				return propiedad;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerPropiedad, id);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerPropiedad, id);
 				throw;
 			}
 		}
@@ -130,14 +130,14 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			{
 				await _collection.InsertOneAsync(property);
 
-				_logger.LogInformation(Constantes.PropiedadInsertada, property.IdOwner);
+				_logger.LogInformation(MessageResponse.PropiedadInsertada, property.IdOwner);
 
 				// Retornar el Id generado como string
 				return property.IdProperty.ToString();
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorInsertarPropiedad, property.IdOwner);
+				_logger.LogError(ex, MessageResponse.ErrorInsertarPropiedad, property.IdOwner);
 				throw;
 			}
 		}
@@ -163,7 +163,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorActualizarPropiedad, id);
+				_logger.LogError(ex, MessageResponse.ErrorActualizarPropiedad, id);
 				throw;
 			}
 		}
@@ -187,12 +187,12 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorEliminarPropiedad, id);
+				_logger.LogError(ex, MessageResponse.ErrorEliminarPropiedad, id);
 				throw;
 			}
 		}
 
-	
+
 	}
 
 }

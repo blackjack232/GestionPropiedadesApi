@@ -1,7 +1,6 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
-using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
@@ -12,7 +11,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 		private readonly IMongoCollection<PropertyImage> _collection;
 		private readonly ILogger<PropertyImageRepositorio> _logger;
 
-		public PropertyImageRepositorio(MongoDbContext context, ILogger<PropertyImageRepositorio> logger)
+		public PropertyImageRepositorio(IMongoDbContext context, ILogger<PropertyImageRepositorio> logger)
 		{
 			_collection = context.PropertyImages;
 			_logger = logger;
@@ -27,18 +26,18 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 		{
 			try
 			{
-				_logger.LogInformation(Constantes.ConsultarImagenesPorPropiedad, idProperty);
+				_logger.LogInformation(MessageResponse.ConsultarImagenesPorPropiedad, idProperty);
 
 				var result = await _collection
 					.Find(img => img.IdProperty == idProperty && img.Enabled)
 					.ToListAsync();
 
-				_logger.LogInformation(Constantes.ImagenesEncontradas, result.Count, idProperty);
+				_logger.LogInformation(MessageResponse.ImagenesEncontradas, result.Count, idProperty);
 				return result;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorConsultarImagenes, idProperty);
+				_logger.LogError(ex, MessageResponse.ErrorConsultarImagenes, idProperty);
 				throw;
 			}
 		}
@@ -50,11 +49,11 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			try
 			{
 				await _collection.InsertOneAsync(propertyImage);
-				_logger.LogInformation(Constantes.ImagenCreada, propertyImage);
+				_logger.LogInformation(MessageResponse.ImagenCreada, propertyImage);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorCrearImagen);
+				_logger.LogError(ex, MessageResponse.ErrorCrearImagen);
 				throw;
 			}
 		}
@@ -73,16 +72,16 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 
 				if (resultado.ModifiedCount == 0)
 				{
-					_logger.LogWarning(Constantes.ImagenNoEncontradaEliminar, id);
+					_logger.LogWarning(MessageResponse.ImagenNoEncontradaEliminar, id);
 					return false;
 				}
 
-				_logger.LogInformation(Constantes.ImagenEliminada, id);
+				_logger.LogInformation(MessageResponse.ImagenEliminada, id);
 				return true;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorEliminarImagen);
+				_logger.LogError(ex, MessageResponse.ErrorEliminarImagen);
 				throw;
 			}
 		}
@@ -101,12 +100,12 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 
 				var imagenes = await _collection.Find(filtro).ToListAsync();
 
-				_logger.LogInformation(Constantes.ImagenesObtenidasCorrectamente, idProperty);
+				_logger.LogInformation(MessageResponse.ImagenesObtenidasCorrectamente, idProperty);
 				return imagenes;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerImagenes);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerImagenes);
 				throw;
 			}
 		}

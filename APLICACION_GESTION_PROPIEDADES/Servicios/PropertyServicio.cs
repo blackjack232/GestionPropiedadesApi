@@ -8,10 +8,8 @@ using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
-using Microsoft.Extensions.Logging;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace APLICACION_GESTION_PROPIEDADES.Servicios
 {
@@ -24,11 +22,12 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		private readonly ICloudinaryServicio _cloudinaryServicio;
 		private readonly ILogger<PropertyServicio> _logger;
 
-		public PropertyServicio(IPropertyRespositorio propiedadRepositorio, IOwnerRepositorio ownerRepositorio, IPropertyImageRepositorio imageRepositorio, ILogger<PropertyServicio> logger)
+		public PropertyServicio(IPropertyRespositorio propiedadRepositorio, IOwnerRepositorio ownerRepositorio, IPropertyImageRepositorio imageRepositorio, ILogger<PropertyServicio> logger, ICloudinaryServicio cloudinaryServicio)
 		{
 			_propiedadRepositorio = propiedadRepositorio;
 			_ownerRepositorio = ownerRepositorio;
 			_imageRepositorio = imageRepositorio;
+			_cloudinaryServicio = cloudinaryServicio;
 			_logger = logger;
 		}
 
@@ -47,7 +46,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		/// ApiResponse con código 200 y lista paginada de propiedades si tiene éxito.
 		/// Código 500 si ocurre un error interno.
 		/// </returns>
-		public async Task<ApiResponse<PagedResponse<PropertyDto>>> ObtenerPropiedad(string? name,string? address,decimal? minPrice,decimal? maxPrice,int pageNumber = 1,int pageSize = 10)
+		public async Task<ApiResponse<PagedResponse<PropertyDto>>> ObtenerPropiedad(string? name, string? address, decimal? minPrice, decimal? maxPrice, int pageNumber = 1, int pageSize = 10)
 		{
 			try
 			{
@@ -55,7 +54,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 				pageSize = Math.Min(pageSize, 100); // Limitar máximo 100 registros por página
 				pageNumber = Math.Max(pageNumber, 1); // Asegurar que sea al menos 1
 
-				_logger.LogInformation(Constantes.ConsultarPropiedades, name, address, minPrice, maxPrice, pageNumber, pageSize);
+				_logger.LogInformation(MessageResponse.ConsultarPropiedades, name, address, minPrice, maxPrice, pageNumber, pageSize);
 
 				// Obtener propiedades paginadas
 				var (properties, totalCount) = await _propiedadRepositorio.ObtenerPropiedadPaginada(
@@ -89,13 +88,13 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					Data = resultados
 				};
 
-				_logger.LogInformation(Constantes.PropiedadesObtenidas, resultados.Count);
-				return ApiResponse<PagedResponse<PropertyDto>>.Ok(pagedResponse, Constantes.PropiedadesObtenidasExito);
+				_logger.LogInformation(MessageResponse.PropiedadesObtenidas, resultados.Count);
+				return ApiResponse<PagedResponse<PropertyDto>>.Ok(pagedResponse, MessageResponse.PropiedadesObtenidasExito);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerPropiedades, name, address, minPrice, maxPrice);
-				return ApiResponse<PagedResponse<PropertyDto>>.Fail(Constantes.ErrorObtenerPropiedadesMensaje);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerPropiedades, name, address, minPrice, maxPrice);
+				return ApiResponse<PagedResponse<PropertyDto>>.Fail(MessageResponse.ErrorObtenerPropiedadesMensaje);
 			}
 		}
 		/// <summary>
@@ -107,14 +106,14 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		{
 			try
 			{
-				_logger.LogInformation(Constantes.ConsultarPropiedadPorId, id);
+				_logger.LogInformation(MessageResponse.ConsultarPropiedadPorId, id);
 
 				var property = await _propiedadRepositorio.ObtenerPorId(id);
 
 				if (property == null)
 				{
-					_logger.LogWarning(Constantes.PropiedadNoEncontrada, id);
-					return ApiResponse<PropertyDto?>.Fail(Constantes.PropiedadNoExisteMensaje);
+					_logger.LogWarning(MessageResponse.PropiedadNoEncontrada, id);
+					return ApiResponse<PropertyDto?>.Fail(MessageResponse.PropiedadNoExisteMensaje);
 				}
 
 				var imagenes = await _imageRepositorio.ObtenerImagenesPorPropiedad(property.IdProperty);
@@ -128,12 +127,12 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					ImageUrls = imagenes.Select(i => i.File).ToList()
 				};
 
-				return ApiResponse<PropertyDto?>.Ok(dto, Constantes.PropiedadObtenidaMensaje);
+				return ApiResponse<PropertyDto?>.Ok(dto, MessageResponse.PropiedadObtenidaMensaje);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerPropiedadPorId, id);
-				return ApiResponse<PropertyDto?>.Fail(Constantes.ErrorConsultarPropiedadMensaje);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerPropiedadPorId, id);
+				return ApiResponse<PropertyDto?>.Fail(MessageResponse.ErrorConsultarPropiedadMensaje);
 			}
 		}
 
@@ -150,12 +149,12 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 		{
 			try
 			{
-				_logger.LogInformation(Constantes.IntentandoCrearPropiedad, dto.IdOwner);
+				_logger.LogInformation(MessageResponse.IntentandoCrearPropiedad, dto.IdOwner);
 
 				if (!await _ownerRepositorio.ExisteOwner(dto.IdOwner))
 				{
-					_logger.LogWarning(Constantes.IdOwnerNoExiste, dto.IdOwner);
-					return ApiResponse<string>.Fail(string.Format(Constantes.IdOwnerNoExisteMensaje, dto.IdOwner));
+					_logger.LogWarning(MessageResponse.IdOwnerNoExiste, dto.IdOwner);
+					return ApiResponse<string>.Fail(string.Format(MessageResponse.IdOwnerNoExisteMensaje, dto.IdOwner));
 				}
 
 				var property = new Property
@@ -169,15 +168,15 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 				};
 
 				await _propiedadRepositorio.Crear(property);
-				_logger.LogInformation(Constantes.PropiedadCreada, dto.IdOwner);
+				_logger.LogInformation(MessageResponse.PropiedadCreada, dto.IdOwner);
 
 
-				return ApiResponse<string>.Ok(null, Constantes.PropiedadCreadaMensaje);
+				return ApiResponse<string>.Ok(null, MessageResponse.PropiedadCreadaMensaje);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorCrearPropiedad, dto.IdOwner);
-				return ApiResponse<string>.Fail(Constantes.ErrorCrearPropiedadMensaje);
+				_logger.LogError(ex, MessageResponse.ErrorCrearPropiedad, dto.IdOwner);
+				return ApiResponse<string>.Fail(MessageResponse.ErrorCrearPropiedadMensaje);
 			}
 		}
 		/// <summary>
@@ -196,7 +195,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 			{
 				var existe = await _propiedadRepositorio.ObtenerPorId(id);
 				if (existe == null)
-					return ApiResponse<string>.Fail(Constantes.PropiedadNoExisteMensaje);
+					return ApiResponse<string>.Fail(MessageResponse.PropiedadNoExisteMensaje);
 
 				var propiedad = new Property
 				{
@@ -212,15 +211,15 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 				var actualizado = await _propiedadRepositorio.Actualizar(id, propiedad);
 
 				if (!actualizado)
-					return ApiResponse<string>.Fail(Constantes.ErrorActualizarPropiedadMensaje);
+					return ApiResponse<string>.Fail(MessageResponse.ErrorActualizarPropiedadMensaje);
 
-				_logger.LogInformation(Constantes.PropiedadActualizada, id);
-				return ApiResponse<string>.Ok(null, Constantes.PropiedadActualizadaMensaje);
+				_logger.LogInformation(MessageResponse.PropiedadActualizada, id);
+				return ApiResponse<string>.Ok(null, MessageResponse.PropiedadActualizadaMensaje);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorActualizarPropiedad, id);
-				return ApiResponse<string>.Fail(Constantes.ErrorActualizarPropiedadMensaje);
+				_logger.LogError(ex, MessageResponse.ErrorActualizarPropiedad, id);
+				return ApiResponse<string>.Fail(MessageResponse.ErrorActualizarPropiedadMensaje);
 			}
 		}
 
@@ -230,15 +229,15 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 			{
 				var eliminado = await _propiedadRepositorio.Eliminar(id);
 				if (!eliminado)
-					return ApiResponse<string>.Fail(Constantes.PropiedadNoExisteMensaje);
+					return ApiResponse<string>.Fail(MessageResponse.PropiedadNoExisteMensaje);
 
-				_logger.LogInformation(Constantes.PropiedadEliminada, id);
-				return ApiResponse<string>.Ok(null, Constantes.PropiedadEliminadaMensaje);
+				_logger.LogInformation(MessageResponse.PropiedadEliminada, id);
+				return ApiResponse<string>.Ok(null, MessageResponse.PropiedadEliminadaMensaje);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorEliminarPropiedad, id);
-				return ApiResponse<string>.Fail(Constantes.ErrorEliminarPropiedadMensaje);
+				_logger.LogError(ex, MessageResponse.ErrorEliminarPropiedad, id);
+				return ApiResponse<string>.Fail(MessageResponse.ErrorEliminarPropiedadMensaje);
 			}
 		}
 
@@ -254,35 +253,35 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 
 			try
 			{
-				var urlImagenproietario = await SubirImagen(request.Propietario.Photo, Constantes.ImagenPropietario);
+				var urlImagenproietario = await SubirImagen(request.Propietario.Photo, MessageResponse.ImagenPropietario);
 				var ownerRequest = ConstruirEntidadPropietario(request.Propietario, urlImagenproietario);
 				ownerId = await CrearOwner(ownerRequest);
 				if (string.IsNullOrEmpty(ownerId))
-					return ApiResponse<string>.Fail(Constantes.ErrorCrearOwner);
+					return ApiResponse<string>.Fail(MessageResponse.ErrorCrearOwner);
 
 				propiedadId = await CrearPropiedad(request, ownerId);
 				if (string.IsNullOrEmpty(propiedadId))
 				{
 					await _ownerRepositorio.Eliminar(ownerId);
-					return ApiResponse<string>.Fail(Constantes.ErrorCrearPropiedad);
+					return ApiResponse<string>.Fail(MessageResponse.ErrorCrearPropiedad);
 				}
 
-				var urlImagenPropiedad = await SubirImagen(request.Imagen, Constantes.ImagenesPropiedades);
+				var urlImagenPropiedad = await SubirImagen(request.Imagen, MessageResponse.ImagenesPropiedades);
 				if (string.IsNullOrEmpty(urlImagenPropiedad))
 				{
 					await Rollback(ownerId, propiedadId);
-					return ApiResponse<string>.Fail(Constantes.ErrorSubirImagen);
+					return ApiResponse<string>.Fail(MessageResponse.ErrorSubirImagen);
 				}
 
 				await GuardarImagen(propiedadId, urlImagenPropiedad);
 
-				return ApiResponse<string>.Ok(propiedadId, Constantes.MensajeRegistroExitoso);
+				return ApiResponse<string>.Ok(propiedadId, MessageResponse.MensajeRegistroExitoso);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.MensajeErrorRegistro);
+				_logger.LogError(ex, MessageResponse.MensajeErrorRegistro);
 				await Rollback(ownerId!, propiedadId!);
-				return ApiResponse<string>.Fail(Constantes.MensajeErrorRegistro + ex.Message);
+				return ApiResponse<string>.Fail(MessageResponse.MensajeErrorRegistro + ex.Message);
 			}
 		}
 

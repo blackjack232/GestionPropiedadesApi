@@ -36,8 +36,8 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					var propiedad = await _propiedadRepositorio.ObtenerPorId(request.PropertyId);
 					if (propiedad == null)
 					{
-						_logger.LogWarning(Constantes.PropiedadNoEncontrada, request.PropertyId);
-						return ApiResponse<string>.Fail(Constantes.PropiedadNoExisteMensaje);
+						_logger.LogWarning(MessageResponse.PropiedadNoEncontrada, request.PropertyId);
+						return ApiResponse<string>.Fail(MessageResponse.PropiedadNoExisteMensaje);
 					}
 
 					var trace = new PropertyTrace
@@ -52,12 +52,12 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					await _traceRepositorio.Crear(trace);
 
 					_logger.LogInformation("Traza de propiedad creada exitosamente");
-					return ApiResponse<string>.Ok(null, Constantes.TrazaCreadaMensaje);
+					return ApiResponse<string>.Ok(null, MessageResponse.TrazaCreadaMensaje);
 				}
 				catch (Exception ex)
 				{
-					_logger.LogError(ex, Constantes.ErrorCrearTraza);
-					return ApiResponse<string>.Fail(Constantes.ErrorCrearTraza);
+					_logger.LogError(ex, MessageResponse.ErrorCrearTraza);
+					return ApiResponse<string>.Fail(MessageResponse.ErrorCrearTraza);
 				}
 			}
 
@@ -69,16 +69,16 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					if (!eliminado)
 					{
 						_logger.LogWarning("No se encontró la traza con id {id} para eliminar", id);
-						return ApiResponse<string>.Fail(Constantes.TrazaNoExisteMensaje);
+						return ApiResponse<string>.Fail(MessageResponse.TrazaNoExisteMensaje);
 					}
 
 					_logger.LogInformation("Traza de propiedad eliminada: {Id}", id);
-					return ApiResponse<string>.Ok(null, Constantes.TrazaEliminadaMensaje);
+					return ApiResponse<string>.Ok(null, MessageResponse.TrazaEliminadaMensaje);
 				}
 				catch (Exception ex)
 				{
-					_logger.LogError(ex, Constantes.ErrorEliminarTraza);
-					return ApiResponse<string>.Fail(Constantes.ErrorEliminarTraza);
+					_logger.LogError(ex, MessageResponse.ErrorEliminarTraza);
+					return ApiResponse<string>.Fail(MessageResponse.ErrorEliminarTraza);
 				}
 			}
 
@@ -90,7 +90,7 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					if (trazas == null || !trazas.Any())
 					{
 						_logger.LogWarning("No se encontraron trazas para la propiedad {id}", idProperty);
-						return ApiResponse<IEnumerable<PropertyTraceDto>>.Fail(Constantes.TrazaNoExisteMensaje);
+						return ApiResponse<IEnumerable<PropertyTraceDto>>.Fail(MessageResponse.TrazaNoExisteMensaje);
 					}
 
 					var dtoList = trazas.Select(t => new PropertyTraceDto
@@ -103,12 +103,12 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 						Tax = t.Tax
 					});
 
-					return ApiResponse<IEnumerable<PropertyTraceDto>>.Ok(dtoList, Constantes.TrazaObtenidaMensaje);
+					return ApiResponse<IEnumerable<PropertyTraceDto>>.Ok(dtoList, MessageResponse.TrazaObtenidaMensaje);
 				}
 				catch (Exception ex)
 				{
-					_logger.LogError(ex, Constantes.ErrorObtenerTraza);
-					return ApiResponse<IEnumerable<PropertyTraceDto>>.Fail(Constantes.ErrorObtenerTraza);
+					_logger.LogError(ex, MessageResponse.ErrorObtenerTraza);
+					return ApiResponse<IEnumerable<PropertyTraceDto>>.Fail(MessageResponse.ErrorObtenerTraza);
 				}
 			}
 		}

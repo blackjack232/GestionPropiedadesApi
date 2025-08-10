@@ -1,7 +1,6 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Dto;
-using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,61 +11,60 @@ namespace API_GESTION_PROPIEDADES.Controllers.Owner
 	public class OwnerController : ControllerBase
 	{
 		private readonly IOwnerAplicacion _servicio;
+		private readonly ILogger<OwnerController> _logger;
 
-		public OwnerController(IOwnerAplicacion servicio)
+		public OwnerController(IOwnerAplicacion servicio, ILogger<OwnerController> logger)
 		{
 			_servicio = servicio;
+			_logger = logger;
 		}
 
-		/// <summary>
-		/// Obtiene la lista de todos los propietarios.
-		/// </summary>
-		/// <returns>
-		/// Código 200 con la lista de propietarios.<br/>
-		/// Código 400 si ocurre un error inesperado.
-		/// </returns>
 		[HttpGet]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<OwnerResponse>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ObtenerTodos()
 		{
-			var response = await _servicio.ObtenerTodos();
-			if (!response.Success)
-				return BadRequest(response);
+			try
+			{
+				var response = await _servicio.ObtenerTodos();
 
-			return Ok(response);
+				if (!response.Success)
+					return BadRequest(response);
+
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, MessageResponse.LogErrorObtenerTodosPropietarios);
+				var errorResponse = ApiResponse<object>.Fail(MessageResponse.ErrorInternoServidor);
+				return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+			}
 		}
 
-		/// <summary>
-		/// Obtiene un propietario por su ID.
-		/// </summary>
-		/// <param name="id">ID del propietario a consultar.</param>
-		/// <returns>
-		/// Código 200 con el propietario si existe.<br/>
-		/// Código 404 si no se encuentra el propietario.
-		/// </returns>
 		[HttpGet("{id}")]
 		[ProducesResponseType(typeof(ApiResponse<OwnerResponse>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ObtenerPorId(string id)
 		{
-			var response = await _servicio.ObtenerPorId(id);
-			if (!response.Success)
-				return NotFound(response);
+			try
+			{
+				var response = await _servicio.ObtenerPorId(id);
 
-			return Ok(response);
+				if (!response.Success || response.Data == null)
+					return NotFound(ApiResponse<object>.Fail(MessageResponse.PropietarioNoExisteMensaje));
+
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, MessageResponse.LogErrorObtenerPropietarioPorId, id);
+				var errorResponse = ApiResponse<object>.Fail(MessageResponse.ErrorInternoServidor);
+				return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+			}
 		}
 
-		/// <summary>
-		/// Crea un nuevo propietario.
-		/// </summary>
-		/// <param name="owner">Datos del propietario a crear.</param>
-		/// <returns>
-		/// Código 200 si se crea correctamente.<br/>
-		/// Código 400 si los datos no son válidos.
-		/// </returns>
 		[HttpPost]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -80,26 +78,26 @@ namespace API_GESTION_PROPIEDADES.Controllers.Owner
 					.Select(e => e.ErrorMessage)
 					.ToList();
 
-				return BadRequest(errores);
+				return BadRequest(ApiResponse<List<string>>.Fail(string.Join("; ", errores)));
 			}
-			var response = await _servicio.Crear(owner);
-			if (!response.Success)
-				return BadRequest(response);
 
-			return Ok(response);
+			try
+			{
+				var response = await _servicio.Crear(owner);
+
+				if (!response.Success)
+					return BadRequest(response);
+
+				return Ok(ApiResponse<string>.Ok(response.Data!, MessageResponse.CreacionExitosa));
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, MessageResponse.LogErrorCrearPropietario);
+				var errorResponse = ApiResponse<object>.Fail(MessageResponse.ErrorInternoServidor);
+				return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+			}
 		}
 
-
-		/// <summary>
-		/// Actualiza un propietario existente.
-		/// </summary>
-		/// <param name="id">ID del propietario a actualizar.</param>
-		/// <param name="ownerDto">Datos del propietario.</param>
-		/// <returns>
-		/// Código 200 si se actualizó correctamente.<br/>
-		/// Código 404 si no se encontró.<br/>
-		/// Código 400 si los datos no son válidos.
-		/// </returns>
 		[HttpPut("{id}")]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -114,43 +112,52 @@ namespace API_GESTION_PROPIEDADES.Controllers.Owner
 					.Select(e => e.ErrorMessage)
 					.ToList();
 
-				return BadRequest(errores);
+				return BadRequest(ApiResponse<List<string>>.Fail(string.Join("; ", errores)));
 			}
-			var response = await _servicio.Actualizar(id, ownerDto);
 
-			if (!response.Success)
+			try
 			{
-				if (response.Message == Constantes.PropiedadNoExisteMensaje || response.Message.Contains("no existe"))
-					return NotFound(response);
+				var response = await _servicio.Actualizar(id, ownerDto);
 
-				return BadRequest(response);
+				if (!response.Success)
+				{
+					if (response.Message == MessageResponse.PropietarioNoExisteMensaje || response.Message.Contains("no existe"))
+						return NotFound(ApiResponse<object>.Fail(MessageResponse.PropietarioNoExisteMensaje));
+
+					return BadRequest(response);
+				}
+
+				return Ok(ApiResponse<string>.Ok(id, MessageResponse.ActualizacionExitosa));
 			}
-
-			return Ok(response);
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, MessageResponse.LogErrorActualizarPropietario, id);
+				var errorResponse = ApiResponse<object>.Fail(MessageResponse.ErrorInternoServidor);
+				return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+			}
 		}
 
-		/// <summary>
-		/// Elimina un propietario por su ID.
-		/// </summary>
-		/// <param name="id">ID del propietario.</param>
-		/// <returns>
-		/// Código 200 si fue eliminado correctamente.<br/>
-		/// Código 404 si no se encuentra el propietario.
-		/// </returns>
 		[HttpDelete("{id}")]
 		[ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> Eliminar(string id)
 		{
-			var response = await _servicio.Eliminar(id);
+			try
+			{
+				var response = await _servicio.Eliminar(id);
 
-			if (!response.Success)
-				return NotFound(response);
+				if (!response.Success)
+					return NotFound(ApiResponse<object>.Fail(MessageResponse.PropietarioNoExisteMensaje));
 
-			return Ok(response);
+				return Ok(ApiResponse<string>.Ok(id, MessageResponse.EliminacionExitosa));
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, MessageResponse.LogErrorEliminarPropietario, id);
+				var errorResponse = ApiResponse<object>.Fail(MessageResponse.ErrorInternoServidor);
+				return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+			}
 		}
-
 	}
-
 }

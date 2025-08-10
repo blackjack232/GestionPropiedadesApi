@@ -6,13 +6,7 @@ using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using APLICACION_GESTION_PROPIEDADES.Dto.Response;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace APLICACION_GESTION_PROPIEDADES.Servicios
 {
@@ -38,8 +32,8 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 				var propiedad = await _propiedadRepositorio.ObtenerPorId(request.IdProperty);
 				if (propiedad == null)
 				{
-					_logger.LogWarning(Constantes.PropiedadNoEncontrada, request.IdProperty);
-					return ApiResponse<string>.Fail(Constantes.PropiedadNoExisteMensaje);
+					_logger.LogWarning(MessageResponse.PropiedadNoEncontrada, request.IdProperty);
+					return ApiResponse<string>.Fail(MessageResponse.PropiedadNoExisteMensaje);
 				}
 
 				var nuevaImagen = new PropertyImage
@@ -47,17 +41,17 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					IdProperty = request.IdProperty,
 					File = request.File,
 					Enabled = request.Enabled,
-					
+
 				};
 
 				await _imageRepositorio.Crear(nuevaImagen);
-				_logger.LogInformation(Constantes.ImagenCreada, request);
-				return ApiResponse<string>.Ok(null, Constantes.ImagenCreadaCorrectamente);
+				_logger.LogInformation(MessageResponse.ImagenCreada, request);
+				return ApiResponse<string>.Ok(null, MessageResponse.ImagenCreadaCorrectamente);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorCrearImagen);
-				return ApiResponse<string>.Fail(Constantes.ErrorCrearImagen);
+				_logger.LogError(ex, MessageResponse.ErrorCrearImagen);
+				return ApiResponse<string>.Fail(MessageResponse.ErrorCrearImagen);
 			}
 		}
 
@@ -67,15 +61,15 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 			{
 				var eliminado = await _imageRepositorio.Eliminar(id);
 				if (!eliminado)
-					return ApiResponse<string>.Fail(Constantes.ImagenNoEncontradaEliminar);
+					return ApiResponse<string>.Fail(MessageResponse.ImagenNoEncontradaEliminar);
 
-				_logger.LogInformation(Constantes.ImagenEliminada, id);
-				return ApiResponse<string>.Ok(null, Constantes.ImagenEliminadaCorrectamente);
+				_logger.LogInformation(MessageResponse.ImagenEliminada, id);
+				return ApiResponse<string>.Ok(null, MessageResponse.ImagenEliminadaCorrectamente);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorEliminarImagen);
-				return ApiResponse<string>.Fail(Constantes.ErrorEliminarImagen);
+				_logger.LogError(ex, MessageResponse.ErrorEliminarImagen);
+				return ApiResponse<string>.Fail(MessageResponse.ErrorEliminarImagen);
 			}
 		}
 
@@ -92,12 +86,12 @@ namespace APLICACION_GESTION_PROPIEDADES.Servicios
 					Enabled = i.Enabled
 				});
 
-				return ApiResponse<IEnumerable<PropertyImageDto>>.Ok(listaDto, Constantes.ImagenesObtenidasCorrectamente);
+				return ApiResponse<IEnumerable<PropertyImageDto>>.Ok(listaDto, MessageResponse.ImagenesObtenidasCorrectamente);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerImagenes);
-				return ApiResponse<IEnumerable<PropertyImageDto>>.Fail(Constantes.ErrorObtenerImagenes);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerImagenes);
+				return ApiResponse<IEnumerable<PropertyImageDto>>.Fail(MessageResponse.ErrorObtenerImagenes);
 			}
 		}
 

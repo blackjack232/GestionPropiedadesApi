@@ -4,7 +4,6 @@ using APLICACION_GESTION_PROPIEDADES.Common.Transversales;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Aplicacion;
 using APLICACION_GESTION_PROPIEDADES.Servicios;
 using APLICACION_GESTION_PROPIEDADES.Servicios.APLICACION_GESTION_PROPIEDADES.Servicios;
-using DOMINIO_GESTION_PROPIEDADES.Entities;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 

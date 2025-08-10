@@ -1,8 +1,6 @@
 using APLICACION_GESTION_PROPIEDADES;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
-using APLICACION_GESTION_PROPIEDADES.Dto;
 using APLICACION_GESTION_PROPIEDADES.Interfaces.Repositorio;
-using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
 using INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio;
 using Serilog;
 
@@ -24,18 +22,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Si usas MongoDbContext:
 builder.Services.Configure<MongoDbSettings>(
 	builder.Configuration.GetSection("MongoDbSettings"));
 
-// Si usas MongoDbContext:
-builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddSingleton<IMongoDbContext, MongoDbContext>();
 
 // Registra el repositorio y servicio
 
-builder.Services.AddScoped<IPropertyRespositorio, PropiedadRepositorio>();
+builder.Services.AddScoped<IPropertyRespositorio, PropertyRepositorio>();
 builder.Services.AddScoped<IOwnerRepositorio, OwnerRepositorio>();
 builder.Services.AddScoped<IPropertyImageRepositorio, PropertyImageRepositorio>();
 builder.Services.AddScoped<IPropertyTraceRepositorio, PropertyTraceRepositorio>();
+builder.Services.AddSingleton<IMongoDbContext, MongoDbContext>();
+
+
 
 builder?.Services.AddApplication();
 

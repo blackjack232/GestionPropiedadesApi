@@ -1,7 +1,6 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
-using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
@@ -13,7 +12,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 		private readonly IMongoCollection<PropertyTrace> _collection;
 		private readonly ILogger<PropertyTraceRepositorio> _logger;
 
-		public PropertyTraceRepositorio(MongoDbContext context, ILogger<PropertyTraceRepositorio> logger)
+		public PropertyTraceRepositorio(IMongoDbContext context, ILogger<PropertyTraceRepositorio> logger)
 		{
 			_collection = context.PropertyTraces;
 			_logger = logger;
@@ -25,11 +24,11 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			try
 			{
 				await _collection.InsertOneAsync(propertyTrace);
-				_logger.LogInformation(Constantes.TrazaCreadaLog, propertyTrace.IdProperty);
+				_logger.LogInformation(MessageResponse.TrazaCreadaLog, propertyTrace.IdProperty);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorCrearTrazaLog);
+				_logger.LogError(ex, MessageResponse.ErrorCrearTrazaLog);
 				throw;
 			}
 		}
@@ -42,16 +41,16 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				var resultado = await _collection.DeleteOneAsync(trace => trace.IdPropertyTrace == id);
 				if (resultado.DeletedCount == 0)
 				{
-					_logger.LogWarning(Constantes.TrazaNoEncontradaEliminarLog, id);
+					_logger.LogWarning(MessageResponse.TrazaNoEncontradaEliminarLog, id);
 					return false;
 				}
 
-				_logger.LogInformation(Constantes.TrazaEliminadaLog, id);
+				_logger.LogInformation(MessageResponse.TrazaEliminadaLog, id);
 				return true;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorEliminarTrazaLog);
+				_logger.LogError(ex, MessageResponse.ErrorEliminarTrazaLog);
 				throw;
 			}
 		}
@@ -65,12 +64,12 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 					.Find(trace => trace.IdProperty == idProperty)
 					.ToListAsync();
 
-				_logger.LogInformation(Constantes.TrazasEncontradasLog, trazas.Count, idProperty);
+				_logger.LogInformation(MessageResponse.TrazasEncontradasLog, trazas.Count, idProperty);
 				return trazas;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerTrazasLog, idProperty);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerTrazasLog, idProperty);
 				throw;
 			}
 		}

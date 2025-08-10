@@ -1,9 +1,7 @@
 ﻿using APLICACION_GESTION_PROPIEDADES.Common.Constantes;
 using APLICACION_GESTION_PROPIEDADES.Common.Interfaces.Repositorio;
 using APLICACION_GESTION_PROPIEDADES.Dto;
-using APLICACION_GESTION_PROPIEDADES.Dto.Request;
 using DOMINIO_GESTION_PROPIEDADES.Entities;
-using INFRAESTRUCTURA_GESTION_PROPIEDADES.Contexto;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -15,7 +13,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 		private readonly IMongoCollection<Owner> _collection;
 		private readonly ILogger<OwnerRepositorio> _logger;
 
-		public OwnerRepositorio(MongoDbContext context, ILogger<OwnerRepositorio> logger)
+		public OwnerRepositorio(IMongoDbContext context, ILogger<OwnerRepositorio> logger)
 		{
 			_collection = context.Owners;
 			_logger = logger;
@@ -34,19 +32,19 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			{
 				if (!ObjectId.TryParse(idOwner, out var objectId))
 				{
-					_logger.LogWarning(Constantes.IdOwnerInvalido, idOwner);
+					_logger.LogWarning(MessageResponse.IdOwnerInvalido, idOwner);
 					return false;
 				}
 
 				var filter = Builders<Owner>.Filter.Eq(o => o.Id, objectId);
 				var existe = await _collection.Find(filter).AnyAsync();
 
-				_logger.LogInformation(Constantes.VerificacionExistenciaOwner, idOwner, existe);
+				_logger.LogInformation(MessageResponse.VerificacionExistenciaOwner, idOwner, existe);
 				return existe;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorVerificarExistenciaOwner, idOwner);
+				_logger.LogError(ex, MessageResponse.ErrorVerificarExistenciaOwner, idOwner);
 				throw;
 			}
 		}
@@ -60,19 +58,19 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			{
 				if (!ObjectId.TryParse(id, out var objectId))
 				{
-					_logger.LogWarning(Constantes.IdOwnerInvalido, id);
+					_logger.LogWarning(MessageResponse.IdOwnerInvalido, id);
 					return null;
 				}
 
 				var filter = Builders<Owner>.Filter.Eq(o => o.Id, objectId);
 				var owner = await _collection.Find(filter).FirstOrDefaultAsync();
 
-				_logger.LogInformation(Constantes.OwnerObtenidoPorId, id);
+				_logger.LogInformation(MessageResponse.OwnerObtenidoPorId, id);
 				return owner;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerOwnerPorId, id);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerOwnerPorId, id);
 				throw;
 			}
 		}
@@ -85,12 +83,12 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			try
 			{
 				var owners = await _collection.Find(_ => true).ToListAsync();
-				_logger.LogInformation(Constantes.OwnersObtenidos);
+				_logger.LogInformation(MessageResponse.OwnersObtenidos);
 				return owners;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorObtenerTodosOwners);
+				_logger.LogError(ex, MessageResponse.ErrorObtenerTodosOwners);
 				throw;
 			}
 		}
@@ -114,14 +112,14 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 
 				await _collection.InsertOneAsync(entidad);
 
-				_logger.LogInformation(Constantes.OwnerCreado, entidad.Name);
+				_logger.LogInformation(MessageResponse.OwnerCreado, entidad.Name);
 
 				// Retorna el Id generado por MongoDB
 				return entidad.Id.ToString();
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorCrearOwner, owner.Name);
+				_logger.LogError(ex, MessageResponse.ErrorCrearOwner, owner.Name);
 				throw;
 			}
 		}
@@ -139,7 +137,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			{
 				if (!ObjectId.TryParse(id, out var objectId))
 				{
-					_logger.LogWarning(Constantes.IdOwnerInvalido, id);
+					_logger.LogWarning(MessageResponse.IdOwnerInvalido, id);
 					return false;
 				}
 
@@ -158,16 +156,16 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 
 				if (result.ModifiedCount > 0)
 				{
-					_logger.LogInformation(Constantes.OwnerActualizado, id);
+					_logger.LogInformation(MessageResponse.OwnerActualizado, id);
 					return true;
 				}
 
-				_logger.LogWarning(Constantes.OwnerNoActualizado, id);
+				_logger.LogWarning(MessageResponse.OwnerNoActualizado, id);
 				return false;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorActualizarOwner, id);
+				_logger.LogError(ex, MessageResponse.ErrorActualizarOwner, id);
 				throw;
 			}
 		}
@@ -182,21 +180,21 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			{
 				if (!ObjectId.TryParse(id, out var objectId))
 				{
-					_logger.LogWarning(Constantes.IdOwnerInvalido, id);
+					_logger.LogWarning(MessageResponse.IdOwnerInvalido, id);
 					return false;
 				}
 
 				var result = await _collection.DeleteOneAsync(o => o.Id == objectId);
-				_logger.LogInformation(Constantes.OwnerEliminado, id);
+				_logger.LogInformation(MessageResponse.OwnerEliminado, id);
 				return result.DeletedCount > 0;
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, Constantes.ErrorEliminarOwner, id);
+				_logger.LogError(ex, MessageResponse.ErrorEliminarOwner, id);
 				throw;
 			}
 		}
 
-	
+
 	}
 }
