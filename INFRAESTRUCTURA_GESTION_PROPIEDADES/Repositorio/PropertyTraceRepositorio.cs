@@ -62,6 +62,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			{
 				var trazas = await _collection
 					.Find(trace => trace.IdProperty == idProperty)
+					.SortByDescending(trace => trace.DateSale) 
 					.ToListAsync();
 
 				_logger.LogInformation(MessageResponse.TrazasEncontradasLog, trazas.Count, idProperty);
@@ -73,6 +74,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				throw;
 			}
 		}
+
 	}
 
 }
