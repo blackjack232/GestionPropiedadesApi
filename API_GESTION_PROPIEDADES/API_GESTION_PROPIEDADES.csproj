@@ -39,8 +39,4 @@
     <ProjectReference Include="..\INFRAESTRUCTURA_GESTION_PROPIEDADES\INFRAESTRUCTURA_GESTION_PROPIEDADES.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Logs\" />
-  </ItemGroup>
-
 </Project>

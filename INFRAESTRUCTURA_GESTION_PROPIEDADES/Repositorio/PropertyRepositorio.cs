@@ -19,37 +19,7 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 			_logger = logger;
 		}
 
-		/// <summary>
-		/// Obtiene una lista de propiedades que cumplan con los filtros proporcionados.
-		/// </summary>
-		public async Task<IEnumerable<Property>> ObtenerPropiedad(string? name, string? address, decimal? minPrice, decimal? maxPrice)
-		{
-			try
-			{
-				var filter = Builders<Property>.Filter.Empty;
 
-				if (!string.IsNullOrEmpty(name))
-					filter &= Builders<Property>.Filter.Regex("Name", new BsonRegularExpression(name, "i"));
-
-				if (!string.IsNullOrEmpty(address))
-					filter &= Builders<Property>.Filter.Regex("Address", new BsonRegularExpression(address, "i"));
-
-				if (minPrice.HasValue)
-					filter &= Builders<Property>.Filter.Gte("Price", minPrice.Value);
-
-				if (maxPrice.HasValue)
-					filter &= Builders<Property>.Filter.Lte("Price", maxPrice.Value);
-
-				var result = await _collection.Find(filter).ToListAsync();
-				_logger.LogInformation(MessageResponse.FiltroPropiedades, result.Count);
-				return result;
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, MessageResponse.ErrorFiltroPropiedades);
-				throw;
-			}
-		}
 		/// <summary>
 		/// Obtiene una lista paginada de propiedades que cumplan con los filtros proporcionados.
 		/// </summary>
@@ -76,7 +46,9 @@ namespace INFRAESTRUCTURA_GESTION_PROPIEDADES.Repositorio
 				var totalCount = await _collection.CountDocumentsAsync(filter);
 
 				// Obtener datos paginados
-				var properties = await _collection.Find(filter)
+				var properties = await _collection
+					.Find(filter)
+					.Sort(Builders<Property>.Sort.Ascending("Price")) 
 					.Skip((pageNumber - 1) * pageSize)
 					.Limit(pageSize)
 					.ToListAsync();
